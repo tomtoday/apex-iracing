@@ -1,0 +1,15 @@
+meta {
+  name: Data-Stats-Member_Recent_Races -Last 10 official races-
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{base_url}}/data/stats/member_recent_races
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~cust_id: 120570
+}

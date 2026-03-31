@@ -1,0 +1,17 @@
+meta {
+  name: Data-Member-Chart_Data
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/data/member/chart_data
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cust_id: 
+  category_id: 1
+  chart_type: 1
+}

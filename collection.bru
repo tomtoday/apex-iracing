@@ -1,0 +1,156 @@
+auth {
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://127.0.0.1:3000/callback
+  authorization_url: https://oauth.iracing.com/oauth2/authorize
+  access_token_url: https://oauth.iracing.com/oauth2/token
+  refresh_token_url: https://oauth.iracing.com/oauth2/token
+  client_id: apex-api-explorer
+  client_secret: 
+  scope: iracing.auth
+  state: 
+  pkce: true
+  credentials_placement: body
+  credentials_id: credentials
+  token_source: access_token
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: true
+}
+
+script:post-response {
+  // Enhanced helper function to handle both S3 link patterns
+  if (req.getUrl().includes('members-ng.iracing.com/data/')) {
+    if (res.status === 200) {
+      const data = res.body;
+      
+      // Pattern 1: Simple S3 link (most endpoints)
+      if (data && data.link) {
+        console.log('='.repeat(80));
+        console.log('✅ iRacing API Response - Simple S3 Link');
+        console.log('='.repeat(80));
+        console.log('🔗 S3 Data Link:', data.link);
+        console.log('⏰ Link expires:', data.expires);
+        console.log('');
+        console.log('📋 NEXT STEPS:');
+        console.log('1. Run the "Fetch-S3-Data" request to get the actual data');
+        console.log('='.repeat(80));
+        
+        // Store the link for easy access
+        try {
+          bru.setEnvVar('s3_link', data.link);
+          bru.setEnvVar('s3_expires', data.expires);
+          bru.setEnvVar('s3_type', 'simple');
+          console.log('✅ S3 link stored in environment variables');
+        } catch (e) {
+          console.log('⚠️ Could not store in environment - use manual copy/paste');
+        }
+      }
+      // Pattern 2: Chunked data (search endpoints)
+      else if (data && data.data && data.data.chunk_info) {
+        const chunkInfo = data.data.chunk_info;
+        console.log('='.repeat(80));
+        console.log('✅ iRacing API Response - Chunked Data');
+        console.log('='.repeat(80));
+        console.log('📊 Result Type:', data.type || 'Unknown');
+        console.log('📦 Chunks:', chunkInfo.num_chunks);
+        console.log('📋 Total Rows:', chunkInfo.rows);
+        console.log('📏 Chunk Size:', chunkInfo.chunk_size);
+        console.log('🔗 Base URL:', chunkInfo.base_download_url);
+        console.log('');
+        console.log('📁 Chunk Files:');
+        chunkInfo.chunk_file_names.forEach((fileName, index) => {
+          const fullUrl = chunkInfo.base_download_url + fileName;
+          console.log(`  ${index + 1}. ${fileName.substring(0, 40)}...`);
+        });
+        console.log('');
+        console.log('📋 NEXT STEPS:');
+        console.log('1. Run the "Fetch-S3-Data" request to get chunk 1 data');
+        console.log('2. For multiple chunks, update the s3_chunk_index variable');
+        console.log('='.repeat(80));
+        
+        // Store chunked data info
+        try {
+          const firstChunkUrl = chunkInfo.base_download_url + chunkInfo.chunk_file_names[0];
+          bru.setEnvVar('s3_link', firstChunkUrl);
+          bru.setEnvVar('s3_expires', 'chunked_data');
+          bru.setEnvVar('s3_type', 'chunked');
+          bru.setEnvVar('s3_chunk_count', chunkInfo.num_chunks.toString());
+          bru.setEnvVar('s3_chunk_index', '0');
+          bru.setEnvVar('s3_base_url', chunkInfo.base_download_url);
+          bru.setEnvVar('s3_chunk_files', JSON.stringify(chunkInfo.chunk_file_names));
+          console.log('✅ Chunked data info stored in environment variables');
+        } catch (e) {
+          console.log('⚠️ Could not store chunked data info');
+        }
+      }
+      // Pattern 3: Direct data (non-S3 response)
+      else if (data) {
+        console.log('='.repeat(80));
+        console.log('✅ iRacing API Response - Direct Data');
+        console.log('='.repeat(80));
+        console.log('📊 Data returned directly (no S3 link needed)');
+        console.log('');
+        console.log('📋 Response Preview:');
+        console.log(JSON.stringify(data, null, 2).substring(0, 500) + '...');
+        console.log('='.repeat(80));
+      }
+      else {
+        console.log('❌ Unexpected response format');
+        console.log('Response:', JSON.stringify(data, null, 2));
+      }
+    }
+  }
+}
+
+docs {
+  # APEX - API Explorer for iRacing
+
+  ## Overview
+  APEX is a comprehensive Bruno API collection providing secure OAuth 2.1-based access to the iRacing Data API. It includes 70+ endpoints organized into 16 logical categories, with intelligent S3 data handling and automated authentication.
+
+  ## Key Features
+  - **OAuth 2.1 with PKCE**: Public client architecture with secure token management
+  - **70+ Endpoints**: Complete coverage of iRacing data APIs organized by category
+  - **Smart S3 Handling**: Automatic detection and management of:
+    - Simple S3 links (car info, track info, member stats, etc.)
+    - Chunked data responses (search results, large datasets)
+    - Direct API responses (no S3 fetch needed)
+  - **Intelligent Console Output**: Clear feedback with next steps after each API call
+
+  ## Endpoint Categories
+  - **02-Member**: User profile, profile info, participant info, login history
+  - **03-Cars**: Car data, assets, specifications
+  - **04-Tracks**: Track information, track assets
+  - **05-Stats**: Member stats, current season stats, career stats
+  - **06-Results**: Race results, subsession results
+  - **07-Series**: Series information, race guides
+  - **08-Leagues**: League info, league season details, league standings
+  - **09-Lookup**: Helmet designs, paint patterns, sponsors, avatars
+  - **10-Constants**: Tracks, cars, seasons, categories, event types
+  - **11-Documentation**: API documentation and data schemas
+  - **12-DriverStats**: Driver statistics and data
+  - **13-Hosted**: Hosted session information and results
+  - **14-Season**: Season details and information
+  - **15-Session**: Session details, events, and standings
+  - **16-Team**: Team information and standings
+  - **17-TimeAttack**: Time attack events and results
+
+  ## Getting Started
+  1. Start with any API endpoint (e.g., "Get Member Info")
+  2. The collection automatically handles OAuth token management
+  3. Response data is automatically processed:
+     - Simple links → stored in `s3_link` environment variable
+     - Chunked data → stored with chunk navigation info
+     - Direct data → displayed in response body
+  4. Use "Fetch-S3-Data" to retrieve actual data from S3
+  5. For chunked data, use "Chunk-Navigator" or adjust `s3_chunk_index` for different chunks
+
+  ## Helper Requests
+  - **Fetch-S3-Data**: Retrieves data from S3 links or specific data chunks
+  - **Chunk-Navigator**: Shows available chunks and current position for chunked data
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Data-League-Get
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base_url}}/data/league/get
+  body: none
+  auth: inherit
+}
+
+query {
+  league_id: 69
+  include_license: false
+}

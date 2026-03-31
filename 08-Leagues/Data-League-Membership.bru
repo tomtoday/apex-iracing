@@ -1,0 +1,16 @@
+meta {
+  name: Data-League-Membership
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/data/league/membership
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cust_id: 
+  include_league: 
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Data-League-Roster
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/data/league/roster
+  body: none
+  auth: inherit
+}
+
+params:query {
+  league_id: 69
+  include_licenses: 
+}

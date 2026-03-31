@@ -1,0 +1,17 @@
+meta {
+  name: Data-Results-Season_Results
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{base_url}}/data/results/season_results
+  body: none
+  auth: inherit
+}
+
+query {
+  season_id: 3703
+  ~event_type: 5
+  ~race_week_num: 0
+}

@@ -1,0 +1,113 @@
+meta {
+  name: Fetch-S3-Data
+  type: http
+  seq: 99
+}
+
+get {
+  url: {{s3_link}}
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const s3Link = bru.getEnvVar('s3_link');
+  const expires = bru.getEnvVar('s3_expires');
+  const s3Type = bru.getEnvVar('s3_type');
+  const chunkCount = bru.getEnvVar('s3_chunk_count');
+  const chunkIndex = bru.getEnvVar('s3_chunk_index');
+  const chunkFiles = bru.getEnvVar('s3_chunk_files');
+  const baseUrl = bru.getEnvVar('s3_base_url');
+  
+  if (!s3Link) {
+    console.log('❌ No S3 link found in environment');
+    console.log('');
+    console.log('Please run an iRacing API request first (like Get-Member-Info)');
+    console.log('to get the S3 link automatically stored.');
+    throw new Error('No S3 link available - run an API request first');
+  }
+  
+  if (s3Type === 'chunked') {
+    // Handle chunked data
+    const currentIndex = parseInt(chunkIndex) || 0;
+    const totalChunks = parseInt(chunkCount) || 1;
+    const fileArray = JSON.parse(chunkFiles || '[]');
+    
+    if (currentIndex >= fileArray.length) {
+      console.log('❌ Chunk index out of range');
+      console.log(`Requested chunk ${currentIndex + 1} but only ${fileArray.length} chunks available`);
+      throw new Error('Invalid chunk index');
+    }
+    
+    const currentFile = fileArray[currentIndex];
+    const currentUrl = baseUrl + currentFile;
+    
+    console.log('📦 Fetching CHUNKED data from S3...');
+    console.log(`📊 Chunk ${currentIndex + 1} of ${totalChunks}`);
+    console.log(`📁 File: ${currentFile}`);
+    console.log(`🔗 URL: ${currentUrl.substring(0, 60)}...`);
+    
+    // Update the URL for this chunk
+    bru.setVar('url', currentUrl);
+    
+  } else {
+    // Handle simple S3 link
+    console.log('📡 Fetching data from S3...');
+    console.log('🔗 Link expires:', expires);
+  }
+}
+
+script:post-response {
+  const s3Type = bru.getEnvVar('s3_type');
+  const chunkCount = bru.getEnvVar('s3_chunk_count');
+  const chunkIndex = bru.getEnvVar('s3_chunk_index');
+  
+  if (res.status === 200) {
+    if (s3Type === 'chunked') {
+      const currentIndex = parseInt(chunkIndex) || 0;
+      const totalChunks = parseInt(chunkCount) || 1;
+      
+      console.log('✅ Chunked S3 data fetched successfully!');
+      console.log('');
+      console.log('='.repeat(80));
+      console.log(`📊 iRACING API DATA - CHUNK ${currentIndex + 1}/${totalChunks}`);
+      console.log('='.repeat(80));
+      console.log('The response body above contains your API data chunk!');
+      
+      if (totalChunks > 1) {
+        console.log('');
+        console.log('🔄 CHUNK NAVIGATION:');
+        if (currentIndex > 0) {
+          console.log(`⬅️  Previous chunk: Set s3_chunk_index to ${currentIndex - 1}, then run this request`);
+        }
+        if (currentIndex < totalChunks - 1) {
+          console.log(`➡️  Next chunk: Set s3_chunk_index to ${currentIndex + 1}, then run this request`);
+        }
+        console.log('');
+        console.log('💡 TIP: You can change s3_chunk_index (0 to ' + (totalChunks - 1) + ') in Environment to jump to any chunk');
+      }
+      console.log('='.repeat(80));
+    } else {
+      console.log('✅ S3 data fetched successfully!');
+      console.log('');
+      console.log('='.repeat(80));
+      console.log('📊 iRACING API DATA');
+      console.log('='.repeat(80));
+      console.log('The response body above contains your actual API data!');
+      console.log('='.repeat(80));
+    }
+  } else if (res.status === 404) {
+    console.log('❌ S3 link not found or expired');
+    console.log('');
+    if (s3Type === 'chunked') {
+      console.log('Chunked data links may have expired.');
+    } else {
+      console.log('S3 links expire in ~2 minutes.');
+    }
+    console.log('Run the original API request again to get fresh links.');
+  } else {
+    console.log('❌ Failed to fetch S3 data');
+    console.log('Status:', res.status);
+    console.log('Response:', JSON.stringify(res.body, null, 2));
+  }
+}

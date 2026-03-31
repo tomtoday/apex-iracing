@@ -1,0 +1,16 @@
+meta {
+  name: Data-Team-Get
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/data/team/get
+  body: none
+  auth: inherit
+}
+
+params:query {
+  team_id: 
+  include_licenses: 
+}

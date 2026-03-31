@@ -1,0 +1,17 @@
+meta {
+  name: Data-Stats-Season_Supersession_Standings
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{base_url}}/data/stats/season_supersession_standings
+  body: none
+  auth: inherit
+}
+
+query {
+  season_id: 3097
+  car_class_id: 4
+  race_week_num: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Data-Lookup-Get
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_url}}/data/lookup/get
+  body: none
+  auth: inherit
+}
+
+params:query {
+  licenselevels: 2
+  ~weather: 
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Data-Stats-Member_Division
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{base_url}}/data/stats/member_division  
+  body: none
+  auth: inherit
+}
+
+query {
+  season_id: 3587
+  event_type: 5
+}

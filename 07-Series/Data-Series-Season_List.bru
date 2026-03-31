@@ -1,0 +1,17 @@
+meta {
+  name: Data-Series-Season_List
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/data/series/season_list
+  body: none
+  auth: inherit
+}
+
+params:query {
+  include_series: 
+  season_year: 
+  season_quarter: 
+}

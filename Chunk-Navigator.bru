@@ -1,0 +1,48 @@
+meta {
+  name: Chunk Navigator
+  type: http
+  seq: 98
+}
+
+get {
+  url: {{s3_link}}
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const s3Type = bru.getEnvVar('s3_type');
+  const chunkCount = bru.getEnvVar('s3_chunk_count');
+  const chunkIndex = bru.getEnvVar('s3_chunk_index');
+  const chunkFiles = bru.getEnvVar('s3_chunk_files');
+  const baseUrl = bru.getEnvVar('s3_base_url');
+  
+  if (s3Type !== 'chunked') {
+    console.log('❌ This tool is for chunked data only');
+    console.log('Current data type:', s3Type || 'simple');
+    console.log('Use "Fetch-S3-Data" for simple S3 links');
+    throw new Error('Not chunked data - use Fetch-S3-Data instead');
+  }
+  
+  const totalChunks = parseInt(chunkCount) || 1;
+  const currentIndex = parseInt(chunkIndex) || 0;
+  const fileArray = JSON.parse(chunkFiles || '[]');
+  
+  console.log('🧭 CHUNK NAVIGATOR');
+  console.log('='.repeat(50));
+  console.log(`📊 Current position: Chunk ${currentIndex + 1} of ${totalChunks}`);
+  console.log('');
+  console.log('📋 Available chunks:');
+  fileArray.forEach((fileName, index) => {
+    const marker = index === currentIndex ? '👉 ' : '   ';
+    console.log(`${marker}${index + 1}. ${fileName.substring(0, 30)}...`);
+  });
+  console.log('');
+  console.log('🔄 NAVIGATION OPTIONS:');
+  console.log('1. Change s3_chunk_index in Environment (0 to ' + (totalChunks - 1) + ')');
+  console.log('2. Run "Fetch-S3-Data" to get that chunk');
+  console.log('3. Or run this navigator again to see current position');
+  
+  // Don't actually make the request - this is just a navigator
+  throw new Error('Navigation info displayed above ⬆️');
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Data-Season-List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/data/season/list
+  body: none
+  auth: inherit
+}
+
+params:query {
+  season_year: 2024
+  season_quarter: 4
+}

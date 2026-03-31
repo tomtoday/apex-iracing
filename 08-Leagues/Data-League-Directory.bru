@@ -1,0 +1,26 @@
+meta {
+  name: Data-League-Directory
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/data/league/directory
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: 
+  tag: 
+  restrict_to_member: 
+  restrict_to_recruiting: 
+  restrict_to_friends: 
+  restrict_to_watched: 
+  minimum_roster_count: 
+  maximum_roster_count: 
+  lowerbound: 1
+  upperbound: 40
+  sort: relevance
+  order: asc
+}

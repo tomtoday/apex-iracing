@@ -1,0 +1,17 @@
+meta {
+  name: Data-Stats-Season_TT_Standings
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{base_url}}/data/stats/season_tt_standings
+  body: none
+  auth: inherit
+}
+
+query {
+  season_id: 3097
+  car_class_id: 4
+  race_week_num: 0
+}

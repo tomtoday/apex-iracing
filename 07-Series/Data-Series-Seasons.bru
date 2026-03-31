@@ -1,0 +1,15 @@
+meta {
+  name: Data-Series-Seasons
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{base_url}}/data/series/seasons
+  body: none
+  auth: inherit
+}
+
+query {
+  include_series: true
+}

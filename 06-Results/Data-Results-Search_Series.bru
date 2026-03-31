@@ -1,0 +1,27 @@
+meta {
+  name: Data-Results-Search_Series
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/data/results/search_series
+  body: none
+  auth: inherit
+}
+
+params:query {
+  season_year: 
+  season_quarter: 
+  start_range_begin: 
+  start_range_end: 
+  finish_range_begin: 
+  finish_range_end: 
+  cust_id: 
+  team_id: 
+  series_id: 
+  race_week_num: 
+  official_only: 
+  event_types: 
+  category_ids: 
+}

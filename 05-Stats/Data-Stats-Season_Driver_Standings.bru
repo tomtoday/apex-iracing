@@ -1,0 +1,17 @@
+meta {
+  name: Data-Stats-Season_Driver_Standings
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{base_url}}/data/stats/season_driver_standings
+  body: none
+  auth: inherit
+}
+
+query {
+  season_id: 1092
+  car_class_id: 1
+  race_week_num: 0
+}

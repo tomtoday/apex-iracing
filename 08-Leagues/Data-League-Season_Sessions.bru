@@ -1,0 +1,17 @@
+meta {
+  name: Data-League-Season_Sessions
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_url}}/data/league/season_sessions
+  body: none
+  auth: inherit
+}
+
+params:query {
+  league_id: 69
+  season_id: 
+  results_only: 
+}
