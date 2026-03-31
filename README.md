@@ -1,9 +1,14 @@
 # APEX - API Explorer for iRacing
 
-APEX is a comprehensive [Bruno](https://www.usebruno.com) API collection providing secure, authenticated access to the iRacing Data API. With 70+ endpoints organized into 16 logical categories and intelligent S3 data handling, APEX makes it easy to explore, test, and integrate iRacing data into your applications.
+> **The optimal line to your iRacing data**
 
-**Please note:** this tool was created using github copilot using the documented endpoints described in https://members-ng.iracing.com/data/doc
-## ✨ Features
+APEX provides secure, authenticated access to the iRacing Data API. It's a developer-friendly tool for exploring and testing iRacing data, with 70+ endpoints organized into 16 logical categories and intelligent S3 data handling. 
+
+APEX is available in two interfaces:
+- **Bruno Collection** (`/bruno/`) - For API exploration with the [Bruno](https://www.usebruno.com) client
+- **Web Interface** - Simple, browser-based interface for easier data fetching (coming soon)
+
+**Please note:** this tool was created using GitHub Copilot based on the documented endpoints at https://members-ng.iracing.com/data/doc
 
 - **OAuth 2.1 with PKCE**: Secure public client authentication without exposing secrets
 - **70+ Endpoints**: Complete API coverage organized into logical categories
@@ -45,34 +50,55 @@ APEX uses a **public client model**, which means:
 
 ## 🚀 Getting Started
 
-1. **Open in Bruno**: Clone this repo and then open the directory in Bruno
+### Using Bruno Collection
+
+1. **Open in Bruno**: Clone this repo, then open the `bruno/` directory in Bruno
 2. **Select an Endpoint**: Choose any endpoint from the 16 categories (e.g., "Get Member Info")
 3. **Run Request**: Click Send - Bruno will handle OAuth automatically
 4. **Get S3 Link**: The response includes an S3 link (or chunked data info)
 5. **Fetch Data**: Run the "Fetch-S3-Data" request to download the actual data
 
-## 📁 Collection Structure
+### Using Web Interface (Coming Soon)
+
+1. **Start the server**: `python app.py`
+2. **Open browser**: Navigate to `http://127.0.0.1:3000`
+3. **Login**: Click "Login" to authenticate with iRacing
+4. **Select endpoint**: Choose Member Info, Car List, or Search Series
+5. **View data**: Results with automatic S3 fetching appear immediately
+
+## 📁 Project Structure
 
 ```
-├── 02-Member/              # User profile and account data
-├── 03-Cars/                # Vehicle information
-├── 04-Tracks/              # Track information
-├── 05-Stats/               # Member and career statistics
-├── 06-Results/             # Race results and subsessions
-├── 07-Series/              # Series information
-├── 08-Leagues/             # League data
-├── 09-Lookup/              # Design/avatar lookup (helmets, paint, sponsors)
-├── 10-Constants/           # Static reference data
-├── 11-Documentation/       # API schema and documentation
-├── 12-DriverStats/         # Driver-specific statistics
-├── 13-Hosted/              # Hosted session data
-├── 14-Season/              # Season information
-├── 15-Session/             # Session and event data
-├── 16-Team/                # Team information
-├── 17-TimeAttack/          # Time attack events
-├── Fetch-S3-Data.bru       # Helper: fetch S3 data
-├── Chunk-Navigator.bru     # Helper: browse chunked data
-└── collection.bru          # Main collection with OAuth setup
+apex-iracing/
+├── bruno/                      # Bruno API collection (70+ endpoints)
+│   ├── collection.bru          # Main collection with OAuth setup
+│   ├── Fetch-S3-Data.bru       # Helper: fetch S3 data
+│   ├── Chunk-Navigator.bru     # Helper: browse chunked data
+│   ├── bruno.json              # Bruno collection metadata
+│   ├── 02-Member/              # User profile and account data
+│   ├── 03-Cars/                # Vehicle information
+│   ├── 04-Tracks/              # Track information
+│   ├── 05-Stats/               # Member and career statistics
+│   ├── 06-Results/             # Race results and subsessions
+│   ├── 07-Series/              # Series information
+│   ├── 08-Leagues/             # League data
+│   ├── 09-Lookup/              # Design/avatar lookup
+│   ├── 10-Constants/           # Static reference data
+│   ├── 11-Documentation/       # API schema and documentation
+│   ├── 12-DriverStats/         # Driver-specific statistics
+│   ├── 13-Hosted/              # Hosted session data
+│   ├── 14-Season/              # Season information
+│   ├── 15-Session/             # Session and event data
+│   ├── 16-Team/                # Team information
+│   └── 17-TimeAttack/          # Time attack events
+├── app.py                      # Web interface Flask app (coming soon)
+├── oauth_client.py             # OAuth2 helper utilities (coming soon)
+├── templates/                  # HTML templates for web UI (coming soon)
+├── static/                     # CSS, JS for web UI (coming soon)
+├── environments/               # Environment variable files
+├── README.md                   # This file
+├── LICENSE
+└── .gitignore
 ```
 
 ## 🔗 How S3 Data Handling Works
