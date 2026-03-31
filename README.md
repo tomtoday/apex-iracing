@@ -45,7 +45,7 @@ APEX uses a **public client model**, which means:
 
 ## 🚀 Getting Started
 
-1. **Open in Bruno**: Import this collection into Bruno
+1. **Open in Bruno**: Clone this repo and then open the directory in Bruno
 2. **Select an Endpoint**: Choose any endpoint from the 16 categories (e.g., "Get Member Info")
 3. **Run Request**: Click Send - Bruno will handle OAuth automatically
 4. **Get S3 Link**: The response includes an S3 link (or chunked data info)
