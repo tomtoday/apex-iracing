@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX - iRacing API Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏁 APEX - iRacing API Explorer</h1>
+            <p class="subtitle">The optimal line to your iRacing data</p>
+            <div id="auth-section" class="auth-section">
+                <button id="login-btn" class="btn btn-primary" style="display:none;">Login with iRacing</button>
+                <span id="auth-status" class="auth-status"></span>
+            </div>
+        </header>
+
+        <main id="main-content" style="display:none;">
+            <div class="endpoints">
+                <!-- Member Info Endpoint -->
+                <div class="endpoint-card">
+                    <h2>👤 Member Info</h2>
+                    <p>Get your iRacing member profile and account information.</p>
+                    <div class="form-group">
+                        <label>Member ID (optional, leave blank for current user):</label>
+                        <input type="number" id="member-id" placeholder="Leave blank for yourself">
+                    </div>
+                    <button class="btn btn-secondary" onclick="fetchMemberInfo()">Fetch Member Info</button>
+                </div>
+
+                <!-- Car List Endpoint -->
+                <div class="endpoint-card">
+                    <h2>🏎️ Car List</h2>
+                    <p>Get a list of all available cars with their specifications.</p>
+                    <button class="btn btn-secondary" onclick="fetchCars()">Fetch Cars</button>
+                </div>
+
+                <!-- Search Series Endpoint -->
+                <div class="endpoint-card">
+                    <h2>🏁 Search Series</h2>
+                    <p>Search for racing series (example of chunked data response).</p>
+                    <button class="btn btn-secondary" onclick="fetchSearchSeries()">Search Series</button>
+                </div>
+            </div>
+
+            <!-- Response Display -->
+            <div id="response-section" style="display:none;">
+                <h2>📊 Response</h2>
+                
+                <!-- Chunk Navigation (shown for chunked data) -->
+                <div id="chunk-nav" style="display:none;" class="chunk-nav">
+                    <p>
+                        <strong>Chunks:</strong> <span id="chunk-info">1 of 1</span>
+                        <button id="prev-chunk-btn" class="btn btn-small" onclick="previousChunk()">← Previous</button>
+                        <button id="next-chunk-btn" class="btn btn-small" onclick="nextChunk()">Next →</button>
+                    </p>
+                </div>
+
+                <!-- Response Metadata -->
+                <div id="response-meta">
+                    <p><strong>Type:</strong> <span id="response-type">—</span></p>
+                    <p id="response-expires-p" style="display:none;">
+                        <strong>Expires:</strong> <span id="response-expires">—</span>
+                    </p>
+                </div>
+
+                <!-- Response Data Display -->
+                <div class="response-display">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('json')">JSON</button>
+                        <button class="tab-btn" id="table-btn" onclick="switchTab('table')" style="display:none;">Table</button>
+                    </div>
+                    <pre id="response-json" class="tab-content active"></pre>
+                    <div id="response-table" class="tab-content" style="display:none;"></div>
+                </div>
+
+                <!-- Error Display -->
+                <div id="error-display" style="display:none;" class="error">
+                    <strong>Error:</strong> <span id="error-message"></span>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>Fetching data...</p>
+            </div>
+        </main>
+
+        <!-- Not Authenticated Message -->
+        <div id="not-auth-message" class="not-authenticated">
+            <h2>🔐 Please Authenticate</h2>
+            <p>Click the "Login with iRacing" button above to authenticate with your iRacing account.</p>
+            <p>This uses OAuth 2.1 with PKCE for secure authentication.</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
