@@ -22,10 +22,10 @@
                 <!-- Member Info Endpoint -->
                 <div class="endpoint-card">
                     <h2>👤 Member Info</h2>
-                    <p>Get your iRacing member profile and account information.</p>
+                    <p>Get iRacing member profile and account information. Leave blank to view your own profile.</p>
                     <div class="form-group">
-                        <label>Member ID (optional, leave blank for current user):</label>
-                        <input type="number" id="member-id" placeholder="Leave blank for yourself">
+                        <label>Member ID (optional, defaults to you):</label>
+                        <input type="number" id="member-id" placeholder="Leave blank for your profile">
                     </div>
                     <button class="btn btn-secondary" onclick="fetchMemberInfo()">Fetch Member Info</button>
                 </div>
@@ -41,6 +41,14 @@
                 <div class="endpoint-card">
                     <h2>🏁 Search Series</h2>
                     <p>Search for racing series (example of chunked data response).</p>
+                    <div class="form-group">
+                        <label>Season Year (optional):</label>
+                        <input type="number" id="season-year" placeholder="e.g., 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Season Quarter (optional):</label>
+                        <input type="number" id="season-quarter" placeholder="1-4">
+                    </div>
                     <button class="btn btn-secondary" onclick="fetchSearchSeries()">Search Series</button>
                 </div>
             </div>
@@ -73,7 +81,7 @@
                         <button class="tab-btn" id="table-btn" onclick="switchTab('table')" style="display:none;">Table</button>
                     </div>
                     <pre id="response-json" class="tab-content active"></pre>
-                    <div id="response-table" class="tab-content" style="display:none;"></div>
+                    <div id="response-table" class="tab-content"></div>
                 </div>
 
                 <!-- Error Display -->

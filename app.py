@@ -1,5 +1,6 @@
 """APEX Web Interface - Flask app for iRacing API exploration"""
 import json
+import jwt
 import requests
 from flask import Flask, render_template, redirect, request, jsonify
 from urllib.parse import urlparse, parse_qs
@@ -21,6 +22,43 @@ def get_api_headers():
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
+
+
+def make_api_request(url, params=None):
+    """Make API request with automatic token refresh on 401"""
+    headers = get_api_headers()
+    if not headers:
+        raise Exception("Not authenticated")
+    
+    response = requests.get(url, headers=headers, params=params)
+    
+    # If we get 401, try to refresh token and retry once
+    if response.status_code == 401:
+        if oauth_client.refresh_access_token():
+            # Retry with refreshed token
+            headers = get_api_headers()
+            response = requests.get(url, headers=headers, params=params)
+        else:
+            response.raise_for_status()
+    else:
+        response.raise_for_status()
+    
+    return response
+
+
+def get_current_user_id():
+    """Extract current user's cust_id from JWT token"""
+    try:
+        token = oauth_client.get_access_token()
+        if not token:
+            return None
+        
+        # Decode JWT without verification (we trust the server that issued it)
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        return decoded.get('iracing_cust_id')
+    except Exception as e:
+        print(f"Failed to extract user ID from token: {str(e)}")
+        return None
 
 
 def fetch_s3_data(url):
@@ -139,18 +177,22 @@ def callback():
 @app.route("/api/member-info")
 def member_info():
     """Get member information"""
-    headers = get_api_headers()
-    if not headers:
+    if not oauth_client.is_authenticated():
         return jsonify({"error": "Not authenticated"}), 401
 
     try:
         member_id = request.args.get("member_id")
+        
+        # If no member_id provided, use current user's ID from token
+        if not member_id:
+            member_id = get_current_user_id()
+            if not member_id:
+                return jsonify({"error": "Could not determine member ID. Please provide member_id parameter or re-authenticate."}), 400
+        
         url = f"{IRACING_API_BASE}/member/get"
-        if member_id:
-            url += f"?member_id={member_id}"
+        params = {"include_licenses": "true", "cust_ids": member_id}
 
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        response = make_api_request(url, params=params)
         api_response = response.json()
 
         # Process response (auto-fetch S3 if needed)
@@ -166,14 +208,12 @@ def member_info():
 @app.route("/api/cars")
 def cars():
     """Get car list"""
-    headers = get_api_headers()
-    if not headers:
+    if not oauth_client.is_authenticated():
         return jsonify({"error": "Not authenticated"}), 401
 
     try:
         url = f"{IRACING_API_BASE}/car/get"
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        response = make_api_request(url)
         api_response = response.json()
 
         # Process response (auto-fetch S3 if needed)
@@ -189,14 +229,20 @@ def cars():
 @app.route("/api/search-series")
 def search_series():
     """Search for series (chunked data example)"""
-    headers = get_api_headers()
-    if not headers:
+    if not oauth_client.is_authenticated():
         return jsonify({"error": "Not authenticated"}), 401
 
     try:
-        url = f"{IRACING_API_BASE}/series/search_series"
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        url = f"{IRACING_API_BASE}/results/search_series"
+        
+        # Accept optional query parameters
+        params = {}
+        if request.args.get("season_year"):
+            params["season_year"] = request.args.get("season_year")
+        if request.args.get("season_quarter"):
+            params["season_quarter"] = request.args.get("season_quarter")
+        
+        response = make_api_request(url, params=params if params else None)
         api_response = response.json()
 
         # Process response (auto-fetch S3 if needed)
@@ -258,4 +304,4 @@ if __name__ == "__main__":
     else:
         print("✅ Already authenticated - token loaded from .iracing_token")
 
-    app.run(host="127.0.0.1", port=3000, debug=False)
+    app.run(host="127.0.0.1", port=3000, debug=True)

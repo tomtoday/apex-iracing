@@ -1,8 +1,8 @@
 # APEX - API Explorer for iRacing
 
-> **The optimal line to your iRacing data**
+In 2025, the old method for authenticating to the iRacing Data API using your username and password was phased out in favor of a more secure oAuth based method. You can still use a [password limited flow](https://oauth.iracing.com/oauth2/book/password_limited_flow.html) but it requires you to pre=register a client and you can still expose your credentials if you are not careful. This makes it hard to explore the iRacing Data API.
 
-APEX provides secure, authenticated access to the iRacing Data API. It's a developer-friendly tool for exploring and testing iRacing data, with 70+ endpoints organized into 16 logical categories and intelligent S3 data handling. 
+APEX provides secure, [authenticated access](https://oauth.iracing.com/oauth2/book/authorization_code_flow.html) to the iRacing Data API. It's a developer-friendly tool for exploring and testing iRacing data, with 70+ endpoints organized into 16 logical categories and intelligent S3 data handling. 
 
 APEX is available in two interfaces:
 - **Bruno Collection** (`/bruno/`) - For API exploration with the [Bruno](https://www.usebruno.com) client
@@ -22,7 +22,7 @@ APEX is available in two interfaces:
 
 ## 🔐 Authentication
 
-APEX uses **OAuth 2.1 Authorization Code Flow with PKCE**, which is the recommended approach for public/shared applications.
+APEX uses **OAuth 2.1 Authorization Code Flow with PKCE**, which is the recommended approach for public/shared applications. A client ID for APEX has been registered with iRacing already.
 
 ### How It Works
 

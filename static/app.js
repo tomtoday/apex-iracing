@@ -73,7 +73,20 @@ async function fetchCars() {
  * Fetch search series endpoint
  */
 async function fetchSearchSeries() {
-    await callEndpoint("/api/search-series", "Search Series");
+    const seasonYear = document.getElementById("season-year").value;
+    const seasonQuarter = document.getElementById("season-quarter").value;
+    
+    let url = "/api/search-series";
+    const params = new URLSearchParams();
+    
+    if (seasonYear) params.append("season_year", seasonYear);
+    if (seasonQuarter) params.append("season_quarter", seasonQuarter);
+    
+    if (params.toString()) {
+        url += "?" + params.toString();
+    }
+    
+    await callEndpoint(url, "Search Series");
 }
 
 /**

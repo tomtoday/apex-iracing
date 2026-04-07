@@ -54,6 +54,28 @@ class IracingOAuthClient:
         # In production, you'd check token expiry time
         return self.token.get('access_token')
 
+    def refresh_access_token(self):
+        """Refresh expired access token using refresh_token"""
+        if not self.token or 'refresh_token' not in self.token:
+            return False
+
+        try:
+            data = {
+                'grant_type': 'refresh_token',
+                'client_id': self.client_id,
+                'refresh_token': self.token['refresh_token'],
+            }
+
+            response = requests.post(TOKEN_URL, data=data)
+            response.raise_for_status()
+
+            new_token = response.json()
+            self._save_token(new_token)
+            return True
+        except Exception as e:
+            print(f"Token refresh failed: {str(e)}")
+            return False
+
     def generate_auth_url(self):
         """Generate OAuth authorization URL with PKCE"""
         # Generate PKCE code challenge
