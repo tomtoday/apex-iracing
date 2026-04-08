@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 .env
 .iracing_token
-*.json
-*.csv
+/*.json
+/*.csv
+static/data-docs.json
 tmp/

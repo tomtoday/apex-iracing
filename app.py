@@ -169,6 +169,8 @@ def callback():
 
     try:
         oauth_client.handle_callback(code, state)
+        global API_DOCS
+        API_DOCS = load_api_docs()
         return """
         <html>
         <head><title>Authentication Successful</title></head>
@@ -321,9 +323,43 @@ def search_chunk(chunk_index):
         return jsonify({"error": str(e)}), 500
 
 
-# Load API docs once at startup
-with open("static/data-docs.json") as f:
-    API_DOCS = json.load(f)
+IRACING_DOCS_URL = "https://members-ng.iracing.com/data/doc"
+DOCS_CACHE_PATH = "static/data-docs.json"
+
+
+def load_api_docs():
+    """Fetch API docs from iRacing, falling back to local cache."""
+    headers = get_api_headers()
+    if headers:
+        try:
+            response = requests.get(IRACING_DOCS_URL, headers=headers, timeout=10)
+            if response.status_code == 401:
+                if oauth_client.refresh_access_token():
+                    headers = get_api_headers()
+                    response = requests.get(IRACING_DOCS_URL, headers=headers, timeout=10)
+                else:
+                    raise Exception("Token expired and refresh failed")
+            response.raise_for_status()
+            docs = response.json()
+            with open(DOCS_CACHE_PATH, "w") as f:
+                json.dump(docs, f)
+            print("✅ API docs fetched from iRacing")
+            return docs
+        except Exception as e:
+            print(f"⚠️  Could not fetch API docs ({e}), falling back to cache")
+    else:
+        print("⚠️  Not authenticated — loading API docs from cache")
+
+    try:
+        with open(DOCS_CACHE_PATH) as f:
+            print("📄 API docs loaded from cache")
+            return json.load(f)
+    except FileNotFoundError:
+        print("❌ No API docs cache found — authenticate and restart")
+        return {}
+
+
+API_DOCS = load_api_docs()
 
 
 @app.route("/api/docs")
