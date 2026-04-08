@@ -1,112 +1,198 @@
 /**
- * APEX Frontend - Single Page App
- * Handles authentication, endpoint calls, and response display
+ * APEX - iRacing API Explorer
+ * Dynamic endpoint explorer driven by /api/docs
  */
 
-// Global state
+// ── State ──────────────────────────────────────────────────────────────────
+let docs = null;
+let selectedEndpoint = null;   // { path, data }
 let currentResponse = null;
 let currentChunkIndex = 0;
 let totalChunks = 1;
 
-/**
- * Initialize the app on page load
- */
-document.addEventListener("DOMContentLoaded", function () {
-    checkAuthStatus();
-});
+// ── Boot ───────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => init());
 
-/**
- * Check authentication status and update UI accordingly
- */
-async function checkAuthStatus() {
-    try {
-        const response = await fetch("/api/auth-status");
-        const data = await response.json();
+async function init() {
+    const res = await fetch("/api/auth-status");
+    const { authenticated } = await res.json();
 
-        const loginBtn = document.getElementById("login-btn");
-        const authStatus = document.getElementById("auth-status");
-        const mainContent = document.getElementById("main-content");
-        const notAuthMessage = document.getElementById("not-auth-message");
+    const loginBtn = document.getElementById("login-btn");
+    const authStatus = document.getElementById("auth-status");
 
-        if (data.authenticated) {
-            // User is authenticated
-            loginBtn.style.display = "none";
-            authStatus.textContent = "✅ Authenticated";
-            authStatus.className = "auth-status authenticated";
-            mainContent.style.display = "block";
-            notAuthMessage.style.display = "none";
-        } else {
-            // User is not authenticated
-            loginBtn.style.display = "block";
-            loginBtn.onclick = () => (window.location.href = "/login");
-            authStatus.textContent = "❌ Not authenticated";
-            authStatus.className = "auth-status not-authenticated";
-            mainContent.style.display = "none";
-            notAuthMessage.style.display = "block";
+    if (authenticated) {
+        authStatus.textContent = "Authenticated";
+        authStatus.className = "auth-status authenticated";
+        loginBtn.style.display = "none";
+        await loadDocs();
+    } else {
+        authStatus.textContent = "Not authenticated";
+        authStatus.className = "auth-status not-authenticated";
+        loginBtn.style.display = "inline-block";
+        loginBtn.onclick = () => (window.location.href = "/login");
+        document.getElementById("welcome-screen").style.display = "none";
+        document.getElementById("not-auth-screen").style.display = "flex";
+    }
+}
+
+// ── Docs / sidebar ─────────────────────────────────────────────────────────
+async function loadDocs() {
+    const res = await fetch("/api/docs");
+    docs = await res.json();
+    renderSidebar();
+
+    // wire up search
+    document.getElementById("endpoint-search").addEventListener("input", (e) => {
+        renderSidebar(e.target.value.trim());
+    });
+}
+
+function renderSidebar(filter = "") {
+    const nav = document.getElementById("endpoint-nav");
+    nav.innerHTML = "";
+    const fl = filter.toLowerCase();
+
+    for (const [category, endpoints] of Object.entries(docs)) {
+        const names = Object.keys(endpoints).filter((name) => {
+            if (!fl) return true;
+            return category.includes(fl) || name.includes(fl) || `${category}/${name}`.includes(fl);
+        });
+        if (!names.length) continue;
+
+        const section = document.createElement("div");
+        section.className = "nav-section";
+
+        const heading = document.createElement("div");
+        heading.className = "nav-category";
+        heading.textContent = category.replace(/_/g, " ");
+        section.appendChild(heading);
+
+        for (const name of names) {
+            const item = document.createElement("div");
+            item.className = "nav-item";
+            if (selectedEndpoint && selectedEndpoint.path === `${category}/${name}`) {
+                item.classList.add("active");
+            }
+            item.textContent = name.replace(/_/g, " ");
+            item.dataset.endpoint = `${category}/${name}`;
+            item.addEventListener("click", () => selectEndpoint(`${category}/${name}`));
+            section.appendChild(item);
         }
-    } catch (error) {
-        console.error("Failed to check auth status:", error);
+        nav.appendChild(section);
     }
 }
 
-/**
- * Fetch member info endpoint
- */
-async function fetchMemberInfo() {
-    const memberId = document.getElementById("member-id").value;
-    let url = "/api/member-info";
-    if (memberId) {
-        url += `?member_id=${memberId}`;
+// ── Endpoint selection ─────────────────────────────────────────────────────
+function selectEndpoint(path) {
+    const [category, name] = path.split("/");
+    const data = docs[category][name];
+
+    selectedEndpoint = { path, data };
+    currentResponse = null;
+    currentChunkIndex = 0;
+    totalChunks = 1;
+
+    // update sidebar active state
+    document.querySelectorAll(".nav-item").forEach((el) => {
+        el.classList.toggle("active", el.dataset.endpoint === path);
+    });
+
+    // populate header
+    document.getElementById("endpoint-title").textContent = path.replace("/", " / ");
+    document.getElementById("endpoint-url").textContent = data.link;
+
+    const noteEl = document.getElementById("endpoint-note");
+    if (data.note) {
+        noteEl.textContent = data.note;
+        noteEl.style.display = "block";
+    } else {
+        noteEl.style.display = "none";
     }
 
-    await callEndpoint(url, "Member Info");
+    renderParamsForm(data.parameters || {});
+
+    // reset response area
+    document.getElementById("response-section").style.display = "none";
+    document.getElementById("error-display").style.display = "none";
+
+    // show panel
+    document.getElementById("welcome-screen").style.display = "none";
+    document.getElementById("endpoint-panel").style.display = "block";
 }
 
-/**
- * Fetch cars endpoint
- */
-async function fetchCars() {
-    await callEndpoint("/api/cars", "Car List");
-}
+// ── Params form ────────────────────────────────────────────────────────────
+function renderParamsForm(parameters) {
+    const form = document.getElementById("params-form");
+    form.innerHTML = "";
 
-/**
- * Fetch search series endpoint
- */
-async function fetchSearchSeries() {
-    const seasonYear = document.getElementById("season-year").value;
-    const seasonQuarter = document.getElementById("season-quarter").value;
-    
-    let url = "/api/search-series";
-    const params = new URLSearchParams();
-    
-    if (seasonYear) params.append("season_year", seasonYear);
-    if (seasonQuarter) params.append("season_quarter", seasonQuarter);
-    
-    if (params.toString()) {
-        url += "?" + params.toString();
+    const entries = Object.entries(parameters);
+    if (!entries.length) {
+        form.innerHTML = '<p class="no-params">No parameters — just click Call Endpoint.</p>';
+        return;
     }
-    
-    await callEndpoint(url, "Search Series");
+
+    for (const [name, info] of entries) {
+        const group = document.createElement("div");
+        group.className = "form-group";
+
+        const label = document.createElement("label");
+        label.htmlFor = `param-${name}`;
+        label.innerHTML = name.replace(/_/g, " ");
+        if (info.required) {
+            label.innerHTML += ' <span class="required">*</span>';
+        }
+
+        let input;
+        if (info.type === "boolean") {
+            input = document.createElement("select");
+            input.className = "form-input";
+            input.innerHTML = '<option value="">—</option><option value="true">true</option><option value="false">false</option>';
+        } else {
+            input = document.createElement("input");
+            input.className = "form-input";
+            input.type = info.type === "number" ? "number" : "text";
+            if (info.type === "numbers") {
+                input.placeholder = "comma-separated, e.g. 1,2,3";
+            }
+        }
+        input.id = `param-${name}`;
+        input.dataset.paramName = name;
+
+        group.appendChild(label);
+        group.appendChild(input);
+
+        if (info.note) {
+            const hint = document.createElement("small");
+            hint.className = "param-hint";
+            hint.textContent = info.note;
+            group.appendChild(hint);
+        }
+
+        form.appendChild(group);
+    }
 }
 
-/**
- * Generic endpoint call handler
- */
-async function callEndpoint(url, name) {
+// ── API call ───────────────────────────────────────────────────────────────
+async function callSelectedEndpoint() {
+    if (!selectedEndpoint) return;
+
+    const params = new URLSearchParams({ _endpoint: selectedEndpoint.path });
+    document.querySelectorAll("[data-param-name]").forEach((input) => {
+        const val = input.value.trim();
+        if (val) params.append(input.dataset.paramName, val);
+    });
+
     showLoading(true);
     hideError();
+    document.getElementById("response-section").style.display = "none";
 
     try {
-        const response = await fetch(url);
-
-        if (response.status === 401) {
-            showError("Not authenticated. Please log in.");
-            checkAuthStatus();
+        const res = await fetch(`/api/proxy?${params}`);
+        if (res.status === 401) {
+            window.location.href = "/login";
             return;
         }
-
-        const data = await response.json();
-
+        const data = await res.json();
         if (data.error) {
             showError(data.error);
         } else {
@@ -115,251 +201,162 @@ async function callEndpoint(url, name) {
             totalChunks = data.chunk_info?.total_chunks || 1;
             displayResponse(data);
         }
-    } catch (error) {
-        showError(`Failed to fetch: ${error.message}`);
+    } catch (err) {
+        showError(`Request failed: ${err.message}`);
     } finally {
         showLoading(false);
     }
 }
 
-/**
- * Display response data
- */
+// ── Response display ───────────────────────────────────────────────────────
 function displayResponse(data) {
-    const responseSection = document.getElementById("response-section");
-    const responseType = document.getElementById("response-type");
-    const responseExpires = document.getElementById("response-expires");
-    const responseExpiresP = document.getElementById("response-expires-p");
-    const responseJson = document.getElementById("response-json");
+    document.getElementById("response-section").style.display = "block";
+
+    // type badge
+    const typeEl = document.getElementById("response-type");
+    const chunkCounter = document.getElementById("chunk-counter");
     const chunkNav = document.getElementById("chunk-nav");
-    const chunkInfo = document.getElementById("chunk-info");
 
-    // Show response section
-    responseSection.style.display = "block";
-
-    // Display type
-    if (data.type === "simple_s3") {
-        responseType.textContent = "Simple S3 Link (Auto-fetched)";
-        if (data.expires) {
-            responseExpires.textContent = data.expires;
-            responseExpiresP.style.display = "block";
-        } else {
-            responseExpiresP.style.display = "none";
-        }
-    } else if (data.type === "chunked") {
-        responseType.textContent = "Chunked Data (Auto-fetched)";
-        responseExpiresP.style.display = "none";
-        chunkNav.style.display = "block";
-        chunkInfo.textContent = `${currentChunkIndex + 1} of ${totalChunks}`;
+    if (data.type === "chunked" || data.type === "chunked_data") {
+        typeEl.textContent = "chunked";
+        chunkCounter.textContent = `chunk ${currentChunkIndex + 1} of ${totalChunks}`;
+        chunkCounter.style.display = "inline";
+        chunkNav.style.display = "flex";
         updateChunkButtons();
-    } else if (data.type === "chunked_data") {
-        responseType.textContent = "Chunk " + (currentChunkIndex + 1);
-        chunkNav.style.display = "block";
-        chunkInfo.textContent = `${currentChunkIndex + 1} of ${totalChunks}`;
-        updateChunkButtons();
-    } else if (data.type === "direct") {
-        responseType.textContent = "Direct Response";
-        responseExpiresP.style.display = "none";
+    } else {
+        typeEl.textContent = data.type || "direct";
+        chunkCounter.style.display = "none";
         chunkNav.style.display = "none";
     }
 
-    // Display JSON
-    responseJson.textContent = JSON.stringify(data.data, null, 2);
+    // JSON
+    document.getElementById("response-json").textContent = JSON.stringify(data.data, null, 2);
 
-    // Try to display as table if it's an array
-    displayAsTable(data.data);
+    // Table (if array)
+    renderTable(data.data);
+
+    // default to JSON tab
+    switchTab("json");
 }
 
-/**
- * Display data as table if possible
- */
-function displayAsTable(data) {
+function renderTable(data) {
     const tableBtn = document.getElementById("table-btn");
-    const responseTable = document.getElementById("response-table");
+    const tableEl = document.getElementById("response-table");
+    tableEl.innerHTML = "";
 
-    // Clear previous table
-    responseTable.innerHTML = "";
-
-    // Check if data is an array of objects
-    if (Array.isArray(data) && data.length > 0 && typeof data[0] === "object") {
-        tableBtn.style.display = "inline-block";
-
-        const table = document.createElement("table");
-        table.className = "data-table";
-
-        // Create header
-        const keys = Object.keys(data[0]);
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-
-        keys.forEach((key) => {
-            const th = document.createElement("th");
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // Create body (limit to first 100 rows for performance)
-        const tbody = document.createElement("tbody");
-        const rowsToShow = Math.min(data.length, 100);
-
-        for (let i = 0; i < rowsToShow; i++) {
-            const row = document.createElement("tr");
-            keys.forEach((key) => {
-                const td = document.createElement("td");
-                const value = data[i][key];
-                td.textContent = value !== null && value !== undefined ? String(value).substring(0, 50) : "—";
-                row.appendChild(td);
-            });
-            tbody.appendChild(row);
-        }
-
-        if (rowsToShow < data.length) {
-            const row = document.createElement("tr");
-            const td = document.createElement("td");
-            td.colSpan = keys.length;
-            td.textContent = `... and ${data.length - rowsToShow} more rows`;
-            td.style.textAlign = "center";
-            td.style.fontStyle = "italic";
-            row.appendChild(td);
-            tbody.appendChild(row);
-        }
-
-        table.appendChild(tbody);
-        responseTable.appendChild(table);
-    } else {
+    if (!Array.isArray(data) || !data.length || typeof data[0] !== "object") {
         tableBtn.style.display = "none";
+        return;
     }
+
+    tableBtn.style.display = "inline-block";
+
+    const table = document.createElement("table");
+    table.className = "data-table";
+
+    const keys = Object.keys(data[0]);
+    const thead = table.createTHead();
+    const headerRow = thead.insertRow();
+    keys.forEach((k) => {
+        const th = document.createElement("th");
+        th.textContent = k;
+        headerRow.appendChild(th);
+    });
+
+    const tbody = table.createTBody();
+    const limit = Math.min(data.length, 100);
+    for (let i = 0; i < limit; i++) {
+        const row = tbody.insertRow();
+        keys.forEach((k) => {
+            const td = row.insertCell();
+            const v = data[i][k];
+            td.textContent = v !== null && v !== undefined ? String(v).substring(0, 60) : "—";
+        });
+    }
+
+    if (data.length > limit) {
+        const row = tbody.insertRow();
+        const td = row.insertCell();
+        td.colSpan = keys.length;
+        td.className = "table-overflow";
+        td.textContent = `… ${data.length - limit} more rows`;
+    }
+
+    tableEl.appendChild(table);
 }
 
-/**
- * Switch display tabs (JSON vs Table)
- */
+// ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(tab) {
-    const jsonDisplay = document.getElementById("response-json");
-    const tableDisplay = document.getElementById("response-table");
-    const buttons = document.querySelectorAll(".tab-btn");
+    const jsonEl = document.getElementById("response-json");
+    const tableEl = document.getElementById("response-table");
+    document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
 
     if (tab === "json") {
-        jsonDisplay.classList.add("active");
-        tableDisplay.classList.remove("active");
+        jsonEl.classList.add("active");
+        tableEl.classList.remove("active");
+        document.querySelectorAll(".tab-btn")[0].classList.add("active");
     } else {
-        jsonDisplay.classList.remove("active");
-        tableDisplay.classList.add("active");
+        tableEl.classList.add("active");
+        jsonEl.classList.remove("active");
+        document.querySelectorAll(".tab-btn")[1].classList.add("active");
     }
-
-    buttons.forEach((btn) => {
-        if (btn.textContent === (tab === "json" ? "JSON" : "Table")) {
-            btn.classList.add("active");
-        } else {
-            btn.classList.remove("active");
-        }
-    });
 }
 
-/**
- * Navigate to previous chunk
- */
+// ── Chunk navigation ───────────────────────────────────────────────────────
 async function previousChunk() {
-    if (currentChunkIndex > 0) {
-        currentChunkIndex--;
-        await fetchChunk();
-    }
+    if (currentChunkIndex > 0) { currentChunkIndex--; await fetchChunk(); }
 }
 
-/**
- * Navigate to next chunk
- */
 async function nextChunk() {
-    if (currentChunkIndex < totalChunks - 1) {
-        currentChunkIndex++;
-        await fetchChunk();
-    }
+    if (currentChunkIndex < totalChunks - 1) { currentChunkIndex++; await fetchChunk(); }
 }
 
-/**
- * Fetch a specific chunk
- */
 async function fetchChunk() {
-    if (!currentResponse || !currentResponse.chunk_info) {
-        showError("No chunk metadata available");
-        return;
-    }
+    if (!currentResponse?.chunk_info) { showError("No chunk metadata available"); return; }
 
-    const chunkFiles = JSON.stringify(currentResponse.chunk_info.chunk_files);
-    const baseUrl = currentResponse.chunk_info.base_url || "";
-
-    if (!baseUrl) {
-        showError("Missing base URL for chunks");
-        return;
-    }
+    const { chunk_files, base_url } = currentResponse.chunk_info;
+    if (!base_url) { showError("Missing base URL for chunks"); return; }
 
     showLoading(true);
     hideError();
 
     try {
         const params = new URLSearchParams({
-            files: chunkFiles,
-            base_url: baseUrl,
+            files: JSON.stringify(chunk_files),
+            base_url,
         });
-
-        const response = await fetch(`/api/search-chunk/${currentChunkIndex}?${params}`);
-        const data = await response.json();
-
+        const res = await fetch(`/api/search-chunk/${currentChunkIndex}?${params}`);
+        const data = await res.json();
         if (data.error) {
             showError(data.error);
         } else {
-            // Update current response with new chunk data
             currentResponse.data = data.data;
             currentResponse.current_chunk = data.current_chunk;
-
-            // Store original chunk_info if not already
-            if (!currentResponse.chunk_info.base_url) {
-                currentResponse.chunk_info.base_url = baseUrl;
-            }
-
             displayResponse(currentResponse);
         }
-    } catch (error) {
-        showError(`Failed to fetch chunk: ${error.message}`);
+    } catch (err) {
+        showError(`Failed to fetch chunk: ${err.message}`);
     } finally {
         showLoading(false);
     }
 }
 
-/**
- * Update chunk navigation buttons
- */
 function updateChunkButtons() {
-    const prevBtn = document.getElementById("prev-chunk-btn");
-    const nextBtn = document.getElementById("next-chunk-btn");
-
-    prevBtn.disabled = currentChunkIndex === 0;
-    nextBtn.disabled = currentChunkIndex >= totalChunks - 1;
+    document.getElementById("prev-chunk-btn").disabled = currentChunkIndex === 0;
+    document.getElementById("next-chunk-btn").disabled = currentChunkIndex >= totalChunks - 1;
 }
 
-/**
- * Show loading indicator
- */
+// ── Helpers ────────────────────────────────────────────────────────────────
 function showLoading(show) {
-    const loading = document.getElementById("loading");
-    loading.style.display = show ? "flex" : "none";
+    document.getElementById("loading").style.display = show ? "flex" : "none";
 }
 
-/**
- * Show error message
- */
-function showError(message) {
-    const errorDisplay = document.getElementById("error-display");
-    const errorMessage = document.getElementById("error-message");
-    errorMessage.textContent = message;
-    errorDisplay.style.display = "block";
+function showError(msg) {
+    const el = document.getElementById("error-display");
+    document.getElementById("error-message").textContent = msg;
+    el.style.display = "block";
 }
 
-/**
- * Hide error message
- */
 function hideError() {
     document.getElementById("error-display").style.display = "none";
 }

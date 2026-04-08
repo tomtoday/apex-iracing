@@ -94,10 +94,25 @@ apex-iracing/
 ├── app.py                      # Web interface Flask app (coming soon)
 ├── oauth_client.py             # OAuth2 helper utilities (coming soon)
 ├── templates/                  # HTML templates for web UI (coming soon)
-├── static/                     # CSS, JS for web UI (coming soon)
+├── static/                     # CSS, JS, and API docs for web UI
+│   ├── data-docs.json          # iRacing API documentation
+│   ├── app.js                  # Frontend JavaScript (coming soon)
+│   └── style.css               # Frontend styles (coming soon)
 ├── environments/               # Environment variable files
 ├── README.md                   # This file
 ├── LICENSE
+
+## 📊 Data Sources
+
+### API Documentation (`static/data-docs.json`)
+
+The `static/data-docs.json` file contains the complete API documentation for the iRacing Data API, including all available endpoints, their parameters, and response schemas.
+
+**Source**: This file is sourced from the official iRacing API documentation at https://members-ng.iracing.com/data/doc
+
+**Updates**: The API documentation may change over time as iRacing adds new features or modifies existing endpoints. You should periodically check for updates and replace the `static/data-docs.json` file if needed.
+
+**Usage**: The web interface uses this file to provide the generic proxy endpoint (`/api/proxy`) that can call any documented API endpoint dynamically.
 └── .gitignore
 ```
 
