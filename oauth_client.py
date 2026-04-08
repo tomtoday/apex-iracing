@@ -41,6 +41,12 @@ class IracingOAuthClient:
             json.dump(token, f, indent=2)
         self.token = token
 
+    def clear_token(self):
+        """Clear the token (delete file and reset)"""
+        if os.path.exists(TOKEN_FILE):
+            os.remove(TOKEN_FILE)
+        self.token = None
+
     def is_authenticated(self):
         """Check if user is authenticated"""
         return self.token is not None and 'access_token' in self.token

@@ -7,101 +7,90 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏁 APEX - iRacing API Explorer</h1>
-            <p class="subtitle">The optimal line to your iRacing data</p>
-            <div id="auth-section" class="auth-section">
-                <button id="login-btn" class="btn btn-primary" style="display:none;">Login with iRacing</button>
+    <div class="app">
+
+        <header class="app-header">
+            <div class="header-brand">
+                <span class="brand-name">APEX</span>
+                <span class="brand-sub">iRacing API Explorer</span>
+            </div>
+            <div class="header-auth">
                 <span id="auth-status" class="auth-status"></span>
+                <button id="login-btn" class="btn btn-primary" style="display:none;">Login with iRacing</button>
             </div>
         </header>
 
-        <main id="main-content" style="display:none;">
-            <div class="endpoints">
-                <!-- Member Info Endpoint -->
-                <div class="endpoint-card">
-                    <h2>👤 Member Info</h2>
-                    <p>Get iRacing member profile and account information. Leave blank to view your own profile.</p>
-                    <div class="form-group">
-                        <label>Member ID (optional, defaults to you):</label>
-                        <input type="number" id="member-id" placeholder="Leave blank for your profile">
+        <div class="app-body">
+
+            <aside class="sidebar">
+                <div class="sidebar-search">
+                    <input type="text" id="endpoint-search" placeholder="Search endpoints…" autocomplete="off">
+                </div>
+                <nav id="endpoint-nav" class="endpoint-nav">
+                    <!-- populated by JS -->
+                </nav>
+            </aside>
+
+            <main class="main-panel">
+
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-box">
+                        <h2>iRacing API Explorer</h2>
+                        <p>Select an endpoint from the sidebar to build a request and inspect the response.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="fetchMemberInfo()">Fetch Member Info</button>
                 </div>
 
-                <!-- Car List Endpoint -->
-                <div class="endpoint-card">
-                    <h2>🏎️ Car List</h2>
-                    <p>Get a list of all available cars with their specifications.</p>
-                    <button class="btn btn-secondary" onclick="fetchCars()">Fetch Cars</button>
-                </div>
-
-                <!-- Search Series Endpoint -->
-                <div class="endpoint-card">
-                    <h2>🏁 Search Series</h2>
-                    <p>Search for racing series (example of chunked data response).</p>
-                    <div class="form-group">
-                        <label>Season Year (optional):</label>
-                        <input type="number" id="season-year" placeholder="e.g., 2026">
+                <div id="not-auth-screen" class="welcome-screen" style="display:none;">
+                    <div class="welcome-box">
+                        <h2>Authentication Required</h2>
+                        <p>Click <strong>Login with iRacing</strong> above to authenticate via OAuth 2.1.</p>
                     </div>
-                    <div class="form-group">
-                        <label>Season Quarter (optional):</label>
-                        <input type="number" id="season-quarter" placeholder="1-4">
+                </div>
+
+                <div id="endpoint-panel" style="display:none;">
+
+                    <div class="endpoint-header">
+                        <h2 id="endpoint-title"></h2>
+                        <code id="endpoint-url" class="endpoint-url"></code>
+                        <p id="endpoint-note" class="endpoint-note" style="display:none;"></p>
                     </div>
-                    <button class="btn btn-secondary" onclick="fetchSearchSeries()">Search Series</button>
-                </div>
-            </div>
 
-            <!-- Response Display -->
-            <div id="response-section" style="display:none;">
-                <h2>📊 Response</h2>
-                
-                <!-- Chunk Navigation (shown for chunked data) -->
-                <div id="chunk-nav" style="display:none;" class="chunk-nav">
-                    <p>
-                        <strong>Chunks:</strong> <span id="chunk-info">1 of 1</span>
-                        <button id="prev-chunk-btn" class="btn btn-small" onclick="previousChunk()">← Previous</button>
-                        <button id="next-chunk-btn" class="btn btn-small" onclick="nextChunk()">Next →</button>
-                    </p>
-                </div>
+                    <div id="params-form" class="params-form"></div>
 
-                <!-- Response Metadata -->
-                <div id="response-meta">
-                    <p><strong>Type:</strong> <span id="response-type">—</span></p>
-                    <p id="response-expires-p" style="display:none;">
-                        <strong>Expires:</strong> <span id="response-expires">—</span>
-                    </p>
-                </div>
-
-                <!-- Response Data Display -->
-                <div class="response-display">
-                    <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab('json')">JSON</button>
-                        <button class="tab-btn" id="table-btn" onclick="switchTab('table')" style="display:none;">Table</button>
+                    <div class="call-bar">
+                        <button class="btn btn-primary" onclick="callSelectedEndpoint()">Call Endpoint</button>
+                        <div id="loading" class="loading-inline" style="display:none;">
+                            <div class="spinner"></div>
+                            <span>Fetching…</span>
+                        </div>
                     </div>
-                    <pre id="response-json" class="tab-content active"></pre>
-                    <div id="response-table" class="tab-content"></div>
+
+                    <div id="error-display" class="error-box" style="display:none;">
+                        <strong>Error:</strong> <span id="error-message"></span>
+                    </div>
+
+                    <div id="response-section" style="display:none;">
+                        <div class="response-toolbar">
+                            <div class="response-meta">
+                                <span id="response-type" class="badge"></span>
+                                <span id="chunk-counter" class="chunk-counter" style="display:none;"></span>
+                            </div>
+                            <div id="chunk-nav" class="chunk-nav" style="display:none;">
+                                <button class="btn btn-small" id="prev-chunk-btn" onclick="previousChunk()">← Prev</button>
+                                <button class="btn btn-small" id="next-chunk-btn" onclick="nextChunk()">Next →</button>
+                            </div>
+                            <div class="tabs">
+                                <button class="tab-btn active" onclick="switchTab('json')">JSON</button>
+                                <button class="tab-btn" id="table-btn" onclick="switchTab('table')" style="display:none;">Table</button>
+                            </div>
+                        </div>
+                        <pre id="response-json" class="response-json tab-content active"></pre>
+                        <div id="response-table" class="tab-content"></div>
+                    </div>
+
                 </div>
+            </main>
 
-                <!-- Error Display -->
-                <div id="error-display" style="display:none;" class="error">
-                    <strong>Error:</strong> <span id="error-message"></span>
-                </div>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div id="loading" class="loading" style="display:none;">
-                <div class="spinner"></div>
-                <p>Fetching data...</p>
-            </div>
-        </main>
-
-        <!-- Not Authenticated Message -->
-        <div id="not-auth-message" class="not-authenticated">
-            <h2>🔐 Please Authenticate</h2>
-            <p>Click the "Login with iRacing" button above to authenticate with your iRacing account.</p>
-            <p>This uses OAuth 2.1 with PKCE for secure authentication.</p>
         </div>
     </div>
 

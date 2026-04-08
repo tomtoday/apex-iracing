@@ -6,6 +6,10 @@ from flask import Flask, render_template, redirect, request, jsonify
 from urllib.parse import urlparse, parse_qs
 from oauth_client import IracingOAuthClient
 
+class AuthError(Exception):
+    """Raised when authentication fails and cannot be refreshed"""
+    pass
+
 app = Flask(__name__)
 oauth_client = IracingOAuthClient()
 
@@ -28,10 +32,10 @@ def make_api_request(url, params=None):
     """Make API request with automatic token refresh on 401"""
     headers = get_api_headers()
     if not headers:
-        raise Exception("Not authenticated")
+        raise AuthError("Not authenticated")
     
     response = requests.get(url, headers=headers, params=params)
-    
+
     # If we get 401, try to refresh token and retry once
     if response.status_code == 401:
         if oauth_client.refresh_access_token():
@@ -39,10 +43,14 @@ def make_api_request(url, params=None):
             headers = get_api_headers()
             response = requests.get(url, headers=headers, params=params)
         else:
-            response.raise_for_status()
+            # Refresh failed, clear token and raise auth error
+            oauth_client.clear_token()
+            raise AuthError("Token expired and refresh failed")
+    elif response.status_code == 400:
+        raise ValueError(f"Bad request: {response.text}")
     else:
         response.raise_for_status()
-    
+
     return response
 
 
@@ -114,6 +122,7 @@ def process_api_response(response_data):
                 "total_rows": chunk_info.get("rows"),
                 "chunk_size": chunk_info.get("chunk_size"),
                 "chunk_files": chunk_files,
+                "base_url": base_url,
             },
             "current_chunk": 0,
             "data": chunk_data,
@@ -160,6 +169,8 @@ def callback():
 
     try:
         oauth_client.handle_callback(code, state)
+        global API_DOCS
+        API_DOCS = load_api_docs()
         return """
         <html>
         <head><title>Authentication Successful</title></head>
@@ -199,6 +210,8 @@ def member_info():
         processed = process_api_response(api_response)
         return jsonify(processed)
 
+    except AuthError as e:
+        return jsonify({"error": str(e)}), 401
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
     except Exception as e:
@@ -220,6 +233,8 @@ def cars():
         processed = process_api_response(api_response)
         return jsonify(processed)
 
+    except AuthError as e:
+        return jsonify({"error": str(e)}), 401
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
     except Exception as e:
@@ -234,24 +249,49 @@ def search_series():
 
     try:
         url = f"{IRACING_API_BASE}/results/search_series"
-        
-        # Accept optional query parameters
+
+        season_year = request.args.get("season_year")
+        season_quarter = request.args.get("season_quarter")
+        start_range_begin = request.args.get("start_range_begin")
+        finish_range_begin = request.args.get("finish_range_begin")
+
+        # API requires at least one of: (season_year + season_quarter), start_range_begin, finish_range_begin
+        if season_year and not season_quarter:
+            return jsonify({"error": "season_quarter is required when using season_year"}), 400
+        if season_quarter and not season_year:
+            return jsonify({"error": "season_year is required when using season_quarter"}), 400
+        if not season_year and not start_range_begin and not finish_range_begin:
+            return jsonify({"error": "At least one filter is required: season_year + season_quarter, start_range_begin, or finish_range_begin"}), 400
+
         params = {}
-        if request.args.get("season_year"):
-            params["season_year"] = request.args.get("season_year")
-        if request.args.get("season_quarter"):
-            params["season_quarter"] = request.args.get("season_quarter")
-        
-        response = make_api_request(url, params=params if params else None)
+        if season_year:
+            params["season_year"] = season_year
+        if season_quarter:
+            params["season_quarter"] = season_quarter
+        if start_range_begin:
+            params["start_range_begin"] = start_range_begin
+        if finish_range_begin:
+            params["finish_range_begin"] = finish_range_begin
+        for key in ("cust_id", "team_id", "series_id", "race_week_num"):
+            if request.args.get(key):
+                params[key] = request.args.get(key)
+
+        response = make_api_request(url, params=params)
         api_response = response.json()
 
         # Process response (auto-fetch S3 if needed)
         processed = process_api_response(api_response)
         return jsonify(processed)
 
+    except AuthError as e:
+        return jsonify({"error": str(e)}), 401
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
@@ -280,6 +320,88 @@ def search_chunk(chunk_index):
         })
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+IRACING_DOCS_URL = "https://members-ng.iracing.com/data/doc"
+DOCS_CACHE_PATH = "static/data-docs.json"
+
+
+def load_api_docs():
+    """Fetch API docs from iRacing, falling back to local cache."""
+    headers = get_api_headers()
+    if headers:
+        try:
+            response = requests.get(IRACING_DOCS_URL, headers=headers, timeout=10)
+            if response.status_code == 401:
+                if oauth_client.refresh_access_token():
+                    headers = get_api_headers()
+                    response = requests.get(IRACING_DOCS_URL, headers=headers, timeout=10)
+                else:
+                    raise Exception("Token expired and refresh failed")
+            response.raise_for_status()
+            docs = response.json()
+            with open(DOCS_CACHE_PATH, "w") as f:
+                json.dump(docs, f)
+            print("✅ API docs fetched from iRacing")
+            return docs
+        except Exception as e:
+            print(f"⚠️  Could not fetch API docs ({e}), falling back to cache")
+    else:
+        print("⚠️  Not authenticated — loading API docs from cache")
+
+    try:
+        with open(DOCS_CACHE_PATH) as f:
+            print("📄 API docs loaded from cache")
+            return json.load(f)
+    except FileNotFoundError:
+        print("❌ No API docs cache found — authenticate and restart")
+        return {}
+
+
+API_DOCS = load_api_docs()
+
+
+@app.route("/api/docs")
+def api_docs():
+    """Serve the iRacing API documentation"""
+    return jsonify(API_DOCS)
+
+
+@app.route("/api/proxy")
+def proxy():
+    """Generic proxy for any iRacing API endpoint"""
+    if not oauth_client.is_authenticated():
+        return jsonify({"error": "Not authenticated"}), 401
+
+    endpoint = request.args.get("_endpoint")
+    if not endpoint:
+        return jsonify({"error": "Missing _endpoint parameter"}), 400
+
+    parts = endpoint.split("/")
+    if len(parts) != 2:
+        return jsonify({"error": "Invalid endpoint format, expected category/name"}), 400
+
+    category, name = parts
+    if category not in API_DOCS or name not in API_DOCS[category]:
+        return jsonify({"error": f"Unknown endpoint: {endpoint}"}), 404
+
+    url = API_DOCS[category][name]["link"]
+    params = {k: v for k, v in request.args.items() if k != "_endpoint"}
+
+    try:
+        response = make_api_request(url, params=params or None)
+        processed = process_api_response(response.json())
+        return jsonify(processed)
+    except AuthError as e:
+        return jsonify({"error": str(e)}), 401
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"API request failed: {str(e)}"}), 500
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
