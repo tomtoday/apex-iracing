@@ -68,7 +68,7 @@ The sidebar is built dynamically from the iRacing API documentation. Select any 
 
 ### API Docs caching
 
-On startup the app attempts to fetch fresh docs from iRacing. If not yet authenticated, it falls back to a local cache (`static/data-docs.json`, gitignored). The cache is written on every successful fetch, so it stays current automatically.
+On startup the app attempts to fetch fresh docs from iRacing. If not yet authenticated, it falls back to a local cache (`data/data-docs.json`, gitignored). The cache is written on every successful fetch, so it stays current automatically.
 
 ## Using the Bruno Collection
 
@@ -156,11 +156,13 @@ templates/
 static/
   app.js            Dynamic endpoint explorer (sidebar, forms, response display)
   style.css         Layout and styling
+data/
   data-docs.json    API docs cache (auto-generated, gitignored)
 tests/
   test_oauth.py     PKCE, auth URL, token file operations
   test_response.py  API response processing (S3, chunked, direct)
   test_routes.py    Flask route behaviour and auth guards
+tools/              Go developer tools (see docs/tooling.md)
 ```
 
 ## Troubleshooting Web

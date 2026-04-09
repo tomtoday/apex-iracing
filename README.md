@@ -31,9 +31,15 @@ APEX uses **OAuth 2.1 Authorization Code Flow with PKCE** — the recommended ap
 ```
 apex-iracing/
 ├── bruno/              # Bruno API collection (70+ endpoints, 16 categories)
+├── data/               # Runtime data (gitignored) — API docs cache
 ├── docs/               # Documentation
 │   ├── setup.md        # Installation and usage instructions
-│   └── bruno.md        # Bruno collection guide
+│   ├── bruno.md        # Bruno collection guide
+│   └── tooling.md      # Go developer tools
+├── tools/              # Go-based developer tools
+│   ├── go.mod
+│   ├── generate.go     # go generate entry point
+│   └── sync-bruno/     # Keeps Bruno collection in sync with API docs
 ├── app.py              # Flask server — OAuth, generic API proxy
 ├── oauth_client.py     # OAuth 2.1 + PKCE flow, token management
 ├── templates/          # HTML templates
@@ -46,8 +52,10 @@ apex-iracing/
 
 - [Setup & Usage](docs/setup.md) — install, run, authenticate, web interface, tests
 - [Bruno Collection](docs/bruno.md) — S3 handling, workflows, helper requests, environment variables
+- [Go Tooling](docs/tooling.md) — sync-bruno, go generate, running Go tests
 - [iRacing API Docs](https://members-ng.iracing.com/data/doc)
 
 ## License
 
 See LICENSE file for details.
+cd
