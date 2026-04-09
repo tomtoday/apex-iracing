@@ -6,5 +6,5 @@ __pycache__/
 .iracing_token
 /*.json
 /*.csv
-static/data-docs.json
+data/
 tmp/
