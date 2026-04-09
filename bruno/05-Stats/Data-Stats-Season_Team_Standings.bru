@@ -1,17 +1,29 @@
 meta {
   name: Data-Stats-Season_Team_Standings
   type: http
-  seq: 26
+  seq: 30
 }
 
 get {
-  url: {{base_url}}/data/stats/season_supersession_standings
+  url: {{base_url}}/data/stats/season_team_standings
   body: none
   auth: inherit
 }
 
-query {
-  season_id: 3097
-  car_class_id: 4
-  race_week_num: 0
+params:query {
+  car_class_id: 
+  season_id: 
+  race_week_num: 
+}
+
+docs {
+  # Data-Stats-Season_Team_Standings
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | car_class_id | number | yes |  |
+  | season_id | number | yes |  |
+  | race_week_num | number | no | The first race week of a season is 0. |
 }

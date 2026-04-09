@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Search_Hosted
   type: http
-  seq: 1
+  seq: 17
 }
 
 get {
@@ -11,17 +11,41 @@ get {
 }
 
 params:query {
-  start_range_begin: 
-  start_range_end: 
+  car_id: 
+  category_ids: 
+  cust_id: 
   finish_range_begin: 
   finish_range_end: 
-  cust_id: 
-  team_id: 
   host_cust_id: 
-  session_name: 
   league_id: 
   league_season_id: 
-  car_id: 
+  session_name: 
+  start_range_begin: 
+  start_range_end: 
+  team_id: 
   track_id: 
-  category_ids: 
+}
+
+docs {
+  # Data-Results-Search_Hosted
+
+  Hosted and league sessions.  Maximum time frame of 90 days. Results split into one or more files with chunks of results. For scraping results the most effective approach is to keep track of the maximum end_time found during a search then make the subsequent call using that date/time as the finish_range_begin and skip any subsessions that are duplicated.  Results are ordered by subsessionid which is a proxy for start time. Requires one of: start_range_begin, finish_range_begin. Requires one of: cust_id, team_id, host_cust_id, session_name.
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | car_id | number | no | One of the cars used by the session. |
+  | category_ids | numbers | no | Track categories to include in the search.  Defaults to all. ?category_ids=1,2,3,4 |
+  | cust_id | number | no | The participant's customer ID. Ignored if team_id is supplied. |
+  | finish_range_begin | string | no | Session finish times. ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". |
+  | finish_range_end | string | no | ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". Exclusive. May be omitted if finish_range_begin is less than 90 days in the past. |
+  | host_cust_id | number | no | The host's customer ID. |
+  | league_id | number | no | Include only results for the league with this ID. |
+  | league_season_id | number | no | Include only results for the league season with this ID. |
+  | session_name | string | no | Part or all of the session's name. |
+  | start_range_begin | string | no | Session start times. ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". |
+  | start_range_end | string | no | ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". Exclusive. May be omitted if start_range_begin is less than 90 days in the past. |
+  | team_id | number | no | The team ID to search for. Takes priority over cust_id if both are supplied. |
+  | track_id | number | no | The ID of the track used by the session. |
 }

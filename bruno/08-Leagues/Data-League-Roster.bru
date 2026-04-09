@@ -1,7 +1,7 @@
 meta {
   name: Data-League-Roster
   type: http
-  seq: 5
+  seq: 11
 }
 
 get {
@@ -11,6 +11,17 @@ get {
 }
 
 params:query {
-  league_id: 69
+  league_id: 
   include_licenses: 
+}
+
+docs {
+  # Data-League-Roster
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | league_id | number | yes |  |
+  | include_licenses | boolean | no | For faster responses, only request when necessary. |
 }

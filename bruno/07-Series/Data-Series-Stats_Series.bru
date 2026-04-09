@@ -1,11 +1,17 @@
 meta {
   name: Data-Series-Stats_Series
   type: http
-  seq: 18
+  seq: 22
 }
 
 get {
   url: {{base_url}}/data/series/stats_series
   body: none
   auth: inherit
+}
+
+docs {
+  # Data-Series-Stats_Series
+
+  To get series and seasons for which standings should be available, filter the list by official: true.
 }

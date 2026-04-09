@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Lap_Data
   type: http
-  seq: 15
+  seq: 23
 }
 
 get {
@@ -10,9 +10,22 @@ get {
   auth: inherit
 }
 
-query {
-  subsession_id: 44820591
-  simsession_number: 0
-  cust_id: 120570
-  ~team_id: 69
+params:query {
+  simsession_number: 
+  subsession_id: 
+  cust_id: 
+  team_id: 
+}
+
+docs {
+  # Data-Results-Lap_Data
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | simsession_number | number | yes | The main event is 0; the preceding event is -1, and so on. |
+  | subsession_id | number | yes |  |
+  | cust_id | number | no | Required if the subsession was a single-driver event. Optional for team events. If omitted for a team event then the laps driven by all the team's drivers will be included. |
+  | team_id | number | no | Required if the subsession was a team event. |
 }

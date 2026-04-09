@@ -1,7 +1,7 @@
 meta {
   name: Data-Season-List
   type: http
-  seq: 1
+  seq: 5
 }
 
 get {
@@ -11,6 +11,17 @@ get {
 }
 
 params:query {
-  season_year: 2024
-  season_quarter: 4
+  season_quarter: 
+  season_year: 
+}
+
+docs {
+  # Data-Season-List
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | season_quarter | number | yes |  |
+  | season_year | number | yes |  |
 }

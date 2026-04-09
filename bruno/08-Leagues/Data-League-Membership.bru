@@ -1,7 +1,7 @@
 meta {
   name: Data-League-Membership
   type: http
-  seq: 4
+  seq: 15
 }
 
 get {
@@ -13,4 +13,15 @@ get {
 params:query {
   cust_id: 
   include_league: 
+}
+
+docs {
+  # Data-League-Membership
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_id | number | no | If different from the authenticated member, the following restrictions apply: - Caller cannot be on requested customer's block list or an empty list will result; - Requested customer cannot have their online activity preference set to hidden or an empty list will result; - Only leagues for which the requested customer is an admin and the league roster is not private are returned. |
+  | include_league | boolean | no |  |
 }

@@ -1,7 +1,7 @@
 meta {
   name: Data-Season-Race_Guide
   type: http
-  seq: 2
+  seq: 6
 }
 
 get {
@@ -13,4 +13,15 @@ get {
 params:query {
   from: 
   include_end_after_from: 
+}
+
+docs {
+  # Data-Season-Race_Guide
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | from | string | no | ISO-8601 offset format. Defaults to the current time. Include sessions with start times up to 3 hours after this time. Times in the past will be rewritten to the current time. |
+  | include_end_after_from | boolean | no | Include sessions which start before 'from' but end after. |
 }

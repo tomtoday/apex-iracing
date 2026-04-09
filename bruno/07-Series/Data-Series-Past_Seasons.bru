@@ -1,7 +1,7 @@
 meta {
   name: Data-Series-Past_Seasons
   type: http
-  seq: 3
+  seq: 25
 }
 
 get {
@@ -12,4 +12,16 @@ get {
 
 params:query {
   series_id: 
+}
+
+docs {
+  # Data-Series-Past_Seasons
+
+  Get all seasons for a series. Filter list by official:true for seasons with standings.
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | series_id | number | yes |  |
 }

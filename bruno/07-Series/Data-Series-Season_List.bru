@@ -1,7 +1,7 @@
 meta {
   name: Data-Series-Season_List
   type: http
-  seq: 4
+  seq: 20
 }
 
 get {
@@ -12,6 +12,18 @@ get {
 
 params:query {
   include_series: 
-  season_year: 
   season_quarter: 
+  season_year: 
+}
+
+docs {
+  # Data-Series-Season_List
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | include_series | boolean | no |  |
+  | season_quarter | number | no |  |
+  | season_year | number | no |  |
 }

@@ -1,11 +1,17 @@
 meta {
   name: Data-Team-Membership
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
   url: {{base_url}}/data/team/membership
   body: none
   auth: inherit
+}
+
+docs {
+  # Data-Team-Membership
+
+  Results for the authenticated member, if any.
 }

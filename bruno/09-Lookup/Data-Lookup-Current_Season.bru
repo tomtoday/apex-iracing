@@ -1,11 +1,17 @@
 meta {
   name: Data-Lookup-Current_Season
   type: http
-  seq: 2
+  seq: 11
 }
 
 get {
   url: {{base_url}}/data/lookup/current_season
   body: none
   auth: inherit
+}
+
+docs {
+  # Data-Lookup-Current_Season
+
+  Changes at midnight UTC on a Tuesday in March, June, September, and December.
 }

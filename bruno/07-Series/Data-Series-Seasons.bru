@@ -1,7 +1,7 @@
 meta {
   name: Data-Series-Seasons
   type: http
-  seq: 17
+  seq: 19
 }
 
 get {
@@ -10,6 +10,20 @@ get {
   auth: inherit
 }
 
-query {
-  include_series: true
+params:query {
+  include_series: 
+  season_quarter: 
+  season_year: 
+}
+
+docs {
+  # Data-Series-Seasons
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | include_series | boolean | no |  |
+  | season_quarter | number | no | To look up past seasons use both a season_year and season_quarter.  Without both, the active seasons are returned. |
+  | season_year | number | no | To look up past seasons use both a season_year and season_quarter.  Without both, the active seasons are returned. |
 }

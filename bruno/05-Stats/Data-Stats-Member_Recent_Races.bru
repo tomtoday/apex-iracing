@@ -1,7 +1,7 @@
 meta {
-  name: Data-Stats-Member_Recent_Races -Last 10 official races-
+  name: Data-Stats-Member_Recent_Races
   type: http
-  seq: 21
+  seq: 37
 }
 
 get {
@@ -11,5 +11,15 @@ get {
 }
 
 params:query {
-  ~cust_id: 120570
+  cust_id: 
+}
+
+docs {
+  # Data-Stats-Member_Recent_Races
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

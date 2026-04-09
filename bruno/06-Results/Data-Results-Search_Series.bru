@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Search_Series
   type: http
-  seq: 2
+  seq: 18
 }
 
 get {
@@ -11,17 +11,41 @@ get {
 }
 
 params:query {
-  season_year: 
-  season_quarter: 
-  start_range_begin: 
-  start_range_end: 
+  category_ids: 
+  cust_id: 
+  event_types: 
   finish_range_begin: 
   finish_range_end: 
-  cust_id: 
-  team_id: 
-  series_id: 
-  race_week_num: 
   official_only: 
-  event_types: 
-  category_ids: 
+  race_week_num: 
+  season_quarter: 
+  season_year: 
+  series_id: 
+  start_range_begin: 
+  start_range_end: 
+  team_id: 
+}
+
+docs {
+  # Data-Results-Search_Series
+
+  Official series.  Maximum time frame of 90 days. Results split into one or more files with chunks of results. For scraping results the most effective approach is to keep track of the maximum end_time found during a search then make the subsequent call using that date/time as the finish_range_begin and skip any subsessions that are duplicated.  Results are ordered by subsessionid which is a proxy for start time but groups together multiple splits of a series when multiple series launch sessions at the same time. Requires at least one of: season_year and season_quarter, start_range_begin, finish_range_begin.
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | category_ids | numbers | no | License categories to include in the search.  Defaults to all. ?category_ids=1,2,3,4 |
+  | cust_id | number | no | Include only sessions in which this customer participated. Ignored if team_id is supplied. |
+  | event_types | numbers | no | Types of events to include in the search. Defaults to all. ?event_types=2,3,4,5 |
+  | finish_range_begin | string | no | Session finish times. ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". |
+  | finish_range_end | string | no | ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". Exclusive. May be omitted if finish_range_begin is less than 90 days in the past. |
+  | official_only | boolean | no | If true, include only sessions earning championship points. Defaults to all. |
+  | race_week_num | number | no | Include only sessions with this race week number. |
+  | season_quarter | number | no | Required when using season_year. |
+  | season_year | number | no | Required when using season_quarter. |
+  | series_id | number | no | Include only sessions for series with this ID. |
+  | start_range_begin | string | no | Session start times. ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". |
+  | start_range_end | string | no | ISO-8601 UTC time zero offset: "2022-04-01T15:45Z". Exclusive. May be omitted if start_range_begin is less than 90 days in the past. |
+  | team_id | number | no | Include only sessions in which this team participated. Takes priority over cust_id if both are supplied. |
 }
