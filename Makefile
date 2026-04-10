@@ -1,9 +1,12 @@
-.PHONY: build run test
+.PHONY: build run run-docker test
+
+run:
+	cd web && go run ./cmd/apex/ --data-dir ../data --token-file ../data/.iracing_token
 
 build:
 	docker build -t apex ./web
 
-run:
+run-docker:
 	docker run --rm -p 3000:3000 \
 		-v "$(PWD)/data:/data" \
 		apex \
