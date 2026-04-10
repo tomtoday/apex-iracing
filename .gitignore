@@ -4,5 +4,6 @@ __pycache__/
 .env
 data/
 tmp/
+dist/
 web/apex
 web/cmd/apex/apex

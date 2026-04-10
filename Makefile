@@ -1,4 +1,4 @@
-.PHONY: build run run-docker test
+.PHONY: build run run-docker snapshot test
 
 run:
 	cd web && go run ./cmd/apex/ --data-dir ../data --token-file ../data/.iracing_token
@@ -13,6 +13,9 @@ run-docker:
 		--addr 0.0.0.0:3000 \
 		--token-file /data/.iracing_token \
 		--data-dir /data
+
+snapshot:
+	goreleaser release --snapshot --clean
 
 test:
 	cd web && go test ./...

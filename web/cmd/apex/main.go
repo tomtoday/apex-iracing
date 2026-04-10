@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"apex-iracing/web/assets"
 	"apex-iracing/web/internal/browser"
@@ -66,7 +67,14 @@ func main() {
 	mux := http.NewServeMux()
 	registerRoutes(mux, oauthClient, proxyClient, dc, docsCachePath)
 
-	log.Printf("Listening on http://%s", *addr)
+	appURL := "http://" + *addr
+	log.Printf("Listening on %s", appURL)
+	go func() {
+		// Small delay to let the server start before opening the browser
+		time.Sleep(200 * time.Millisecond)
+		_ = browser.Open(appURL)
+	}()
+
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}

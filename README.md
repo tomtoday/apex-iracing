@@ -10,6 +10,23 @@ APEX is available in two interfaces:
 
 **Please note:** this tool was created "agent-first" on the documented endpoints at https://members-ng.iracing.com/data/doc
 
+## Download
+
+Pre-built binaries for macOS, Linux, and Windows are available on the [Releases](https://github.com/tomtoday/apex-iracing/releases) page.
+
+APEX is a single self-contained executable — no Python, no dependencies, no install step. Download the archive for your platform, extract it, and run the binary. It opens your browser automatically on startup.
+
+| Platform | File |
+|---|---|
+| macOS (Apple Silicon) | `apex_*_darwin_arm64.tar.gz` |
+| macOS (Intel) | `apex_*_darwin_amd64.tar.gz` |
+| Linux (amd64) | `apex_*_linux_amd64.tar.gz` |
+| Linux (arm64) | `apex_*_linux_arm64.tar.gz` |
+| Windows (amd64) | `apex_*_windows_amd64.zip` |
+| Windows (arm64) | `apex_*_windows_arm64.zip` |
+
+> **macOS note:** Gatekeeper may block the binary on first run. Right-click → Open to bypass the warning, or run `xattr -d com.apple.quarantine ./apex` in the terminal.
+
 ## Authentication
 
 APEX uses **OAuth 2.1 Authorization Code Flow with PKCE** — the recommended approach for public/shared applications. A client ID has already been registered with iRacing.
