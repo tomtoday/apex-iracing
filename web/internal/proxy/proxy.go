@@ -170,7 +170,8 @@ func (p *Proxy) ProcessResponse(raw []byte) (*Response, error) {
 	return &Response{Type: "direct", Data: val}, nil
 }
 
-// FetchS3Data fetches JSON from an S3 URL and returns the decoded value.
+// FetchS3Data fetches data from an S3 URL. JSON responses are decoded into a
+// value; non-JSON responses (e.g. CSV) are returned as a raw string.
 func (p *Proxy) FetchS3Data(rawURL string) (any, error) {
 	resp, err := p.client.Get(rawURL)
 	if err != nil {
@@ -182,9 +183,15 @@ func (p *Proxy) FetchS3Data(rawURL string) (any, error) {
 		return nil, fmt.Errorf("S3 fetch failed (%d)", resp.StatusCode)
 	}
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read S3 response: %w", err)
+	}
+
 	var v any
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return nil, fmt.Errorf("failed to decode S3 response: %w", err)
+	if err := json.Unmarshal(body, &v); err != nil {
+		// Not JSON (e.g. CSV) — return as raw string
+		return string(body), nil
 	}
 	return v, nil
 }
