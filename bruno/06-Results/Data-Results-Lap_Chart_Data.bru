@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Lap_Chart_Data
   type: http
-  seq: 14
+  seq: 22
 }
 
 get {
@@ -10,7 +10,18 @@ get {
   auth: inherit
 }
 
-query {
-  subsession_id: 44820591
-  simsession_number: 0
+params:query {
+  simsession_number: 
+  subsession_id: 
+}
+
+docs {
+  # Data-Results-Lap_Chart_Data
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | simsession_number | number | yes | The main event is 0; the preceding event is -1, and so on. |
+  | subsession_id | number | yes |  |
 }

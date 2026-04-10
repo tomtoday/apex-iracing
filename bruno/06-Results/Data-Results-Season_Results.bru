@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Season_Results
   type: http
-  seq: 16
+  seq: 19
 }
 
 get {
@@ -10,8 +10,20 @@ get {
   auth: inherit
 }
 
-query {
-  season_id: 3703
-  ~event_type: 5
-  ~race_week_num: 0
+params:query {
+  season_id: 
+  event_type: 
+  race_week_num: 
+}
+
+docs {
+  # Data-Results-Season_Results
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | season_id | number | yes |  |
+  | event_type | number | no | Retrict to one event type: 2 - Practice; 3 - Qualify; 4 - Time Trial; 5 - Race |
+  | race_week_num | number | no | The first race week of a season is 0. |
 }

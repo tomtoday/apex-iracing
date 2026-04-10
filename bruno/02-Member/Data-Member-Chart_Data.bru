@@ -1,7 +1,7 @@
 meta {
   name: Data-Member-Chart_Data
   type: http
-  seq: 3
+  seq: 30
 }
 
 get {
@@ -11,7 +11,19 @@ get {
 }
 
 params:query {
+  category_id: 
+  chart_type: 
   cust_id: 
-  category_id: 1
-  chart_type: 1
+}
+
+docs {
+  # Data-Member-Chart_Data
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | category_id | number | yes | 1 - Oval; 2 - Road; 3 - Dirt oval; 4 - Dirt road |
+  | chart_type | number | yes | 1 - iRating; 2 - TT Rating; 3 - License/SR |
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

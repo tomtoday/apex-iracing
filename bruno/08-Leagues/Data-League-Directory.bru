@@ -1,7 +1,7 @@
 meta {
   name: Data-League-Directory
   type: http
-  seq: 2
+  seq: 13
 }
 
 get {
@@ -11,16 +11,37 @@ get {
 }
 
 params:query {
-  search: 
-  tag: 
+  lowerbound: 
+  maximum_roster_count: 
+  minimum_roster_count: 
+  order: 
+  restrict_to_friends: 
   restrict_to_member: 
   restrict_to_recruiting: 
-  restrict_to_friends: 
   restrict_to_watched: 
-  minimum_roster_count: 
-  maximum_roster_count: 
-  lowerbound: 1
-  upperbound: 40
-  sort: relevance
-  order: asc
+  search: 
+  sort: 
+  tag: 
+  upperbound: 
+}
+
+docs {
+  # Data-League-Directory
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | lowerbound | number | no | First row of results to return.  Defaults to 1. |
+  | maximum_roster_count | number | no | If set include leagues with no more than this number of members. |
+  | minimum_roster_count | number | no | If set include leagues with at least this number of members. |
+  | order | string | no | One of asc or desc.  Defaults to asc. |
+  | restrict_to_friends | boolean | no | If true include only leagues owned by a friend. |
+  | restrict_to_member | boolean | no | If true include only leagues for which customer is a member. |
+  | restrict_to_recruiting | boolean | no | If true include only leagues which are recruiting. |
+  | restrict_to_watched | boolean | no | If true include only leagues owned by a watched member. |
+  | search | string | no | Will search against league name, description, owner, and league ID. |
+  | sort | string | no | One of relevance, leaguename, displayname, rostercount. displayname is owners's name. Defaults to relevance. |
+  | tag | string | no | One or more tags, comma-separated. |
+  | upperbound | number | no | Last row of results to return. Defaults to lowerbound + 39. |
 }

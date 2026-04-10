@@ -1,7 +1,7 @@
 meta {
   name: Data-Stats-Member_Recap
   type: http
-  seq: 2
+  seq: 41
 }
 
 get {
@@ -12,6 +12,18 @@ get {
 
 params:query {
   cust_id: 
-  year: 
   season: 
+  year: 
+}
+
+docs {
+  # Data-Stats-Member_Recap
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_id | number | no | Defaults to the authenticated member. |
+  | season | number | no | Season (quarter) within the year; if not supplied the recap will be fore the entire year. |
+  | year | number | no | Season year; if not supplied the current calendar year (UTC) is used. |
 }

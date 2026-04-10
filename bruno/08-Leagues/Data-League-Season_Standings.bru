@@ -1,7 +1,7 @@
 meta {
   name: Data-League-Season_Standings
   type: http
-  seq: 7
+  seq: 17
 }
 
 get {
@@ -11,8 +11,21 @@ get {
 }
 
 params:query {
-  league_id: 69
+  league_id: 
   season_id: 
   car_class_id: 
   car_id: 
+}
+
+docs {
+  # Data-League-Season_Standings
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | league_id | number | yes |  |
+  | season_id | number | yes |  |
+  | car_class_id | number | no |  |
+  | car_id | number | no | If car_class_id is included then the standings are for the car in that car class, otherwise they are for the car across car classes. |
 }

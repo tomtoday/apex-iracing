@@ -1,7 +1,7 @@
 meta {
   name: Data-League-Seasons
   type: http
-  seq: 6
+  seq: 16
 }
 
 get {
@@ -11,6 +11,17 @@ get {
 }
 
 params:query {
-  league_id: 69
+  league_id: 
   retired: 
+}
+
+docs {
+  # Data-League-Seasons
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | league_id | number | yes |  |
+  | retired | boolean | no | If true include seasons which are no longer active. |
 }

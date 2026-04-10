@@ -1,7 +1,7 @@
 meta {
   name: Data-Member-Get
   type: http
-  seq: 10
+  seq: 31
 }
 
 get {
@@ -11,7 +11,17 @@ get {
 }
 
 params:query {
-  cust_ids: 227267
-  include_licenses: true
+  cust_ids: 
+  include_licenses: 
 }
+
+docs {
+  # Data-Member-Get
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_ids | numbers | yes | ?cust_ids=2,3,4 |
+  | include_licenses | boolean | no |  |
 }

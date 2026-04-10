@@ -1,7 +1,7 @@
 meta {
   name: Data-Lookup-Get
   type: http
-  seq: 8
+  seq: 14
 }
 
 get {
@@ -10,7 +10,8 @@ get {
   auth: inherit
 }
 
-params:query {
-  licenselevels: 2
-  ~weather: 
+docs {
+  # Data-Lookup-Get
+
+  ?weather=weather_wind_speed_units&weather=weather_wind_speed_max&weather=weather_wind_speed_min&licenselevels=licenselevels
 }

@@ -1,7 +1,7 @@
 meta {
   name: Data-Member-Award_Instances
   type: http
-  seq: 2
+  seq: 29
 }
 
 get {
@@ -11,6 +11,17 @@ get {
 }
 
 params:query {
-  cust_id: 
   award_id: 
+  cust_id: 
+}
+
+docs {
+  # Data-Member-Award_Instances
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | award_id | number | yes |  |
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

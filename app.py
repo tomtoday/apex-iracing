@@ -324,7 +324,7 @@ def search_chunk(chunk_index):
 
 
 IRACING_DOCS_URL = "https://members-ng.iracing.com/data/doc"
-DOCS_CACHE_PATH = "static/data-docs.json"
+DOCS_CACHE_PATH = "data/data-docs.json"
 
 
 def load_api_docs():

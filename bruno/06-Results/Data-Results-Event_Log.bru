@@ -1,7 +1,7 @@
 meta {
   name: Data-Results-Event_Log
   type: http
-  seq: 12
+  seq: 21
 }
 
 get {
@@ -10,7 +10,18 @@ get {
   auth: inherit
 }
 
-query {
-  subsession_id: 69
-  simsession_number: -1
+params:query {
+  simsession_number: 
+  subsession_id: 
+}
+
+docs {
+  # Data-Results-Event_Log
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | simsession_number | number | yes | The main event is 0; the preceding event is -1, and so on. |
+  | subsession_id | number | yes |  |
 }

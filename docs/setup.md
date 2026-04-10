@@ -68,7 +68,7 @@ The sidebar is built dynamically from the iRacing API documentation. Select any 
 
 ### API Docs caching
 
-On startup the app attempts to fetch fresh docs from iRacing. If not yet authenticated, it falls back to a local cache (`static/data-docs.json`, gitignored). The cache is written on every successful fetch, so it stays current automatically.
+On startup the app attempts to fetch fresh docs from iRacing. If not yet authenticated, it falls back to a local cache (`data/data-docs.json`, gitignored). The cache is written on every successful fetch, so it stays current automatically.
 
 ## Using the Bruno Collection
 
@@ -117,13 +117,16 @@ Bruno's post-response scripts keep these up to date after each request:
 
 To fetch a specific chunk: update `s3_chunk_index` in Bruno's Environment panel, then run **Fetch-S3-Data** again.
 
-### Troubleshooting
+### Troubleshooting Bruno
 
-**"No S3 link found in environment"** — run an API endpoint first; the post-response script populates the variable.
+**"No S3 link found in environment"**
+> run an API endpoint first; the post-response script populates the variable.
 
-**S3 link expired (404)** — links expire in ~2 minutes; re-run the original endpoint to get a fresh one.
+**S3 link expired (404)**
+> links expire in ~2 minutes; re-run the original endpoint to get a fresh one.
 
-**Authentication issues** — tokens refresh automatically; if stuck, clear Bruno's cache or re-run any request to trigger a fresh OAuth flow.
+**Authentication issues**
+>tokens refresh automatically; if stuck, clear Bruno's cache or re-run any request to trigger a fresh OAuth flow.
 
 ---
 
@@ -153,27 +156,25 @@ templates/
 static/
   app.js            Dynamic endpoint explorer (sidebar, forms, response display)
   style.css         Layout and styling
+data/
   data-docs.json    API docs cache (auto-generated, gitignored)
 tests/
   test_oauth.py     PKCE, auth URL, token file operations
   test_response.py  API response processing (S3, chunked, direct)
   test_routes.py    Flask route behaviour and auth guards
+tools/              Go developer tools (see docs/tooling.md)
 ```
 
-## Troubleshooting
+## Troubleshooting Web
 
-### **`ModuleNotFoundError: No module named 'flask'`**
+**`ModuleNotFoundError: No module named 'flask'`**
+> Forgot to install dependencies or activate the venv: `pip install -r requirements.txt`
 
-Forgot to install dependencies or activate the venv: `pip install -r requirements.txt`
+**`Address already in use`**
+> Port 3000 is taken. Kill it: `lsof -ti:3000 | xargs kill -9`
 
-### **`Address already in use`**
+**"Not authenticated" after login**
+> Token may have expired — click Login again. Check that `.iracing_token` exists in the project root.
 
-Port 3000 is taken. Kill it: `lsof -ti:3000 | xargs kill -9`
-
-### **"Not authenticated" after login**
-
-Token may have expired — click Login again. Check that `.iracing_token` exists in the project root.
-
-### **Sidebar is empty after login**
-
-The API docs fetch failed. Check the terminal for a `⚠️` message. Restarting the app usually resolves it.
+**Sidebar is empty after login**
+> The API docs fetch failed. Check the terminal for a `⚠️` message. Restarting the app usually resolves it.

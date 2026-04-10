@@ -1,7 +1,7 @@
 meta {
   name: Data-Stats-World_Records
   type: http
-  seq: 3
+  seq: 43
 }
 
 get {
@@ -13,6 +13,19 @@ get {
 params:query {
   car_id: 
   track_id: 
-  season_year: 
   season_quarter: 
+  season_year: 
+}
+
+docs {
+  # Data-Stats-World_Records
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | car_id | number | yes |  |
+  | track_id | number | yes |  |
+  | season_quarter | number | no | Limit best times to a given quarter; only applicable when year is used. |
+  | season_year | number | no | Limit best times to a given year. |
 }

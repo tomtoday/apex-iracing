@@ -1,7 +1,7 @@
 meta {
   name: Data-Member-Profile
   type: http
-  seq: 5
+  seq: 27
 }
 
 get {
@@ -12,4 +12,14 @@ get {
 
 params:query {
   cust_id: 
+}
+
+docs {
+  # Data-Member-Profile
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

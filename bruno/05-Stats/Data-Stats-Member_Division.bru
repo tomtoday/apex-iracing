@@ -1,16 +1,29 @@
 meta {
   name: Data-Stats-Member_Division
   type: http
-  seq: 20
+  seq: 40
 }
 
 get {
-  url: {{base_url}}/data/stats/member_division  
+  url: {{base_url}}/data/stats/member_division
   body: none
   auth: inherit
 }
 
-query {
-  season_id: 3587
-  event_type: 5
+params:query {
+  event_type: 
+  season_id: 
+}
+
+docs {
+  # Data-Stats-Member_Division
+
+  Divisions are 0-based: 0 is Division 1, 10 is Rookie. See /data/constants/divisons for more information. Always for the authenticated member.
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | event_type | number | yes | The event type code for the division type: 4 - Time Trial; 5 - Race |
+  | season_id | number | yes |  |
 }

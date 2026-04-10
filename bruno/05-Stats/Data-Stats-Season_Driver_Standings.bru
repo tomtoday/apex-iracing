@@ -1,7 +1,7 @@
 meta {
   name: Data-Stats-Season_Driver_Standings
   type: http
-  seq: 24
+  seq: 42
 }
 
 get {
@@ -10,8 +10,22 @@ get {
   auth: inherit
 }
 
-query {
-  season_id: 1092
-  car_class_id: 1
-  race_week_num: 0
+params:query {
+  car_class_id: 
+  season_id: 
+  division: 
+  race_week_num: 
+}
+
+docs {
+  # Data-Stats-Season_Driver_Standings
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | car_class_id | number | yes |  |
+  | season_id | number | yes |  |
+  | division | number | no | Divisions are 0-based: 0 is Division 1, 10 is Rookie. See /data/constants/divisons for more information. Defaults to all. |
+  | race_week_num | number | no | The first race week of a season is 0. |
 }

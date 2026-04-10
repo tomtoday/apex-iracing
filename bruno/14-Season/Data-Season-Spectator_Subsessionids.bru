@@ -1,7 +1,7 @@
 meta {
   name: Data-Season-Spectator_Subsessionids
   type: http
-  seq: 3
+  seq: 7
 }
 
 get {
@@ -12,4 +12,14 @@ get {
 
 params:query {
   event_types: 
+}
+
+docs {
+  # Data-Season-Spectator_Subsessionids
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | event_types | numbers | no | Types of events to include in the search. Defaults to all. ?event_types=2,3,4,5 |
 }

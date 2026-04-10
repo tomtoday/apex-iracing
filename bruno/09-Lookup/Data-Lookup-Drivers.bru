@@ -1,7 +1,7 @@
 meta {
   name: Data-Lookup-Drivers
   type: http
-  seq: 3
+  seq: 12
 }
 
 get {
@@ -13,4 +13,15 @@ get {
 params:query {
   search_term: 
   league_id: 
+}
+
+docs {
+  # Data-Lookup-Drivers
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | search_term | string | yes | A cust_id or partial name for which to search. |
+  | league_id | number | no | Narrow the search to the roster of the given league. |
 }

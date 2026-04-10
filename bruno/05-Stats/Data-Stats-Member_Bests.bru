@@ -1,7 +1,7 @@
 meta {
   name: Data-Stats-Member_Bests
   type: http
-  seq: 1
+  seq: 35
 }
 
 get {
@@ -11,6 +11,17 @@ get {
 }
 
 params:query {
-  cust_id: 
   car_id: 
+  cust_id: 
+}
+
+docs {
+  # Data-Stats-Member_Bests
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | car_id | number | no | First call should exclude car_id; use cars_driven list in return for subsequent calls. |
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

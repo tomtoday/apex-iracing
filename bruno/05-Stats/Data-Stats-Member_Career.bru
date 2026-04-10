@@ -1,7 +1,7 @@
 meta {
   name: Data-Stats-Member_Career
   type: http
-  seq: 19
+  seq: 36
 }
 
 get {
@@ -10,6 +10,16 @@ get {
   auth: inherit
 }
 
-query {
-  cust_id: 120570
+params:query {
+  cust_id: 
+}
+
+docs {
+  # Data-Stats-Member_Career
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | cust_id | number | no | Defaults to the authenticated member. |
 }

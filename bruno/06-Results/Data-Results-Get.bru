@@ -1,7 +1,7 @@
 meta {
-  name: Data-Results-Get -Session Results-
+  name: Data-Results-Get
   type: http
-  seq: 13
+  seq: 20
 }
 
 get {
@@ -11,5 +11,19 @@ get {
 }
 
 params:query {
-  subsession_id: 79220098
+  subsession_id: 
+  include_licenses: 
+}
+
+docs {
+  # Data-Results-Get
+
+  Get the results of a subsession, if authorized to view them. series_logo image paths are relative to https://images-static.iracing.com/img/logos/series/
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | subsession_id | number | yes |  |
+  | include_licenses | boolean | no |  |
 }

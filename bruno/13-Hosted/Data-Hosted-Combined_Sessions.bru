@@ -1,7 +1,7 @@
 meta {
   name: Data-Hosted-Combined_Sessions
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
@@ -12,4 +12,16 @@ get {
 
 params:query {
   package_id: 
+}
+
+docs {
+  # Data-Hosted-Combined_Sessions
+
+  Sessions that can be joined as a driver or spectator, and also includes non-league pending sessions for the user.
+
+  ## Parameters
+
+  | Parameter | Type | Required | Notes |
+  |-----------|------|----------|-------|
+  | package_id | number | no | If set, return only sessions using this car or track package ID. |
 }
