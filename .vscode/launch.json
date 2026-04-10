@@ -7,6 +7,15 @@
             "request": "launch",
             "program": "${workspaceFolder}/app.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run APEX (Go)",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/web/cmd/apex",
+            "cwd": "${workspaceFolder}",
+            "args": []
         }
     ]
 }
