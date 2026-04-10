@@ -18,12 +18,14 @@ async function init() {
     const { authenticated } = await res.json();
 
     const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
     const authStatus = document.getElementById("auth-status");
 
     if (authenticated) {
         authStatus.textContent = "Authenticated";
         authStatus.className = "auth-status authenticated";
-        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        logoutBtn.onclick = () => (window.location.href = "/logout");
         await loadDocs();
     } else {
         authStatus.textContent = "Not authenticated";

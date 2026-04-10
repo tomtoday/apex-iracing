@@ -8,3 +8,5 @@ __pycache__/
 /*.csv
 data/
 tmp/
+web/apex
+web/cmd/apex/apex

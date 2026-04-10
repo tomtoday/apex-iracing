@@ -82,6 +82,7 @@ func registerRoutes(mux *http.ServeMux, oauthClient *oauth.Client, proxyClient *
 
 	mux.HandleFunc("GET /{$}", handleIndex())
 	mux.HandleFunc("GET /login", handleLogin(oauthClient))
+	mux.HandleFunc("GET /logout", handleLogout(oauthClient))
 	mux.HandleFunc("GET /callback", handleCallback(oauthClient, proxyClient, dc, docsCachePath))
 	mux.HandleFunc("GET /api/auth-status", handleAuthStatus(oauthClient))
 	mux.HandleFunc("GET /api/docs", handleDocs(dc))
@@ -113,6 +114,13 @@ func handleLogin(oa *oauth.Client) http.HandlerFunc {
 		}
 		_ = browser.Open(authURL) // best-effort; ignore error
 		http.Redirect(w, r, authURL, http.StatusFound)
+	}
+}
+
+func handleLogout(oa *oauth.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_ = oa.ClearToken()
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
 
