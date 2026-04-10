@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX - iRacing API Explorer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+
+        <header class="app-header">
+            <div class="header-brand">
+                <span class="brand-name">APEX</span>
+                <span class="brand-sub">iRacing API Explorer</span>
+            </div>
+            <div class="header-auth">
+                <span id="auth-status" class="auth-status"></span>
+                <button id="login-btn" class="btn btn-primary" style="display:none;">Login with iRacing</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+
+            <aside class="sidebar">
+                <div class="sidebar-search">
+                    <input type="text" id="endpoint-search" placeholder="Search endpoints…" autocomplete="off">
+                </div>
+                <nav id="endpoint-nav" class="endpoint-nav">
+                    <!-- populated by JS -->
+                </nav>
+            </aside>
+
+            <main class="main-panel">
+
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-box">
+                        <h2>iRacing API Explorer</h2>
+                        <p>Select an endpoint from the sidebar to build a request and inspect the response.</p>
+                    </div>
+                </div>
+
+                <div id="not-auth-screen" class="welcome-screen" style="display:none;">
+                    <div class="welcome-box">
+                        <h2>Authentication Required</h2>
+                        <p>Click <strong>Login with iRacing</strong> above to authenticate via OAuth 2.1.</p>
+                    </div>
+                </div>
+
+                <div id="endpoint-panel" style="display:none;">
+
+                    <div class="endpoint-header">
+                        <h2 id="endpoint-title"></h2>
+                        <code id="endpoint-url" class="endpoint-url"></code>
+                        <p id="endpoint-note" class="endpoint-note" style="display:none;"></p>
+                    </div>
+
+                    <div id="params-form" class="params-form"></div>
+
+                    <div class="call-bar">
+                        <button class="btn btn-primary" onclick="callSelectedEndpoint()">Call Endpoint</button>
+                        <div id="loading" class="loading-inline" style="display:none;">
+                            <div class="spinner"></div>
+                            <span>Fetching…</span>
+                        </div>
+                    </div>
+
+                    <div id="error-display" class="error-box" style="display:none;">
+                        <strong>Error:</strong> <span id="error-message"></span>
+                    </div>
+
+                    <div id="response-section" style="display:none;">
+                        <div class="response-toolbar">
+                            <div class="response-meta">
+                                <span id="response-type" class="badge"></span>
+                                <span id="chunk-counter" class="chunk-counter" style="display:none;"></span>
+                            </div>
+                            <div id="chunk-nav" class="chunk-nav" style="display:none;">
+                                <button class="btn btn-small" id="prev-chunk-btn" onclick="previousChunk()">← Prev</button>
+                                <button class="btn btn-small" id="next-chunk-btn" onclick="nextChunk()">Next →</button>
+                            </div>
+                            <div class="tabs">
+                                <button class="tab-btn active" onclick="switchTab('json')">JSON</button>
+                                <button class="tab-btn" id="table-btn" onclick="switchTab('table')" style="display:none;">Table</button>
+                            </div>
+                        </div>
+                        <pre id="response-json" class="response-json tab-content active"></pre>
+                        <div id="response-table" class="tab-content"></div>
+                    </div>
+
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
