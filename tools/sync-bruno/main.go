@@ -8,7 +8,7 @@
 // # Authentication
 //
 // The iRacing API requires a valid OAuth 2.1 Bearer token. sync-bruno reads
-// this token from --token (default: ../.iracing_token), the same file written
+// this token from --token (default: ../data/.iracing_token), the same file written
 // by any APEX authentication flow (web app, Bruno collection). Whichever tool
 // you authenticated with first is sufficient — they all share the token file.
 //
@@ -90,7 +90,7 @@ var seqRe = regexp.MustCompile(`seq:\s+(\d+)`)
 func main() {
 	docsPath := flag.String("docs", "../data/data-docs.json", "path to data-docs.json cache")
 	brunoPath := flag.String("bruno", "../bruno", "path to Bruno collection root")
-	tokenPath := flag.String("token", "../.iracing_token", "path to iRacing OAuth token file")
+	tokenPath := flag.String("token", "../data/.iracing_token", "path to iRacing OAuth token file")
 	sync := flag.Bool("sync", false, "generate missing .bru files")
 	update := flag.Bool("update", false, "regenerate all .bru files to match current API docs (implies --sync)")
 	fetch := flag.Bool("fetch", false, "force a fresh fetch from the iRacing API even if the cache exists")

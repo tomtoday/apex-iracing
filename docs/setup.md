@@ -2,48 +2,67 @@
 
 ## Prerequisites
 
-- Python 3.8 or higher
-- pip (included with Python)
+- [Go 1.23+](https://go.dev/dl/) — for running or building locally
+- [Docker](https://www.docker.com) — for running via container (optional)
+- `make` — for the convenience commands below
+  - macOS/Linux: included by default
+  - Windows: available via [Git Bash](https://gitforwindows.org), WSL, or `choco install make`
 
 ## Quick Start
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/tomtoday/apex-iracing.git ## or the SSH variant if you prefer
-
+git clone https://github.com/tomtoday/apex-iracing.git
 cd apex-iracing
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Run the application
+
+**Locally:**
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+make run
 ```
 
-You'll see `(.venv)` in your terminal prompt. Run `deactivate` when done.
-
-### 3. Install dependencies
+**Via Docker:**
 
 ```bash
-pip install -r requirements.txt
+make build
+make run-docker
 ```
 
-### 4. Run the application
-
-```bash
-python app.py
-```
-
-### 5. Open in browser and authenticate
+### 3. Open in browser and authenticate
 
 Go to `http://127.0.0.1:3000` and click **Login with iRacing**. After logging in:
 
 1. You're redirected back to the app
-2. Your token is saved to `.iracing_token` (gitignored — never committed)
+2. Your token is saved to `data/.iracing_token` (gitignored — never committed)
 3. The app fetches the full API documentation from iRacing
 4. All 70+ endpoints are immediately available in the sidebar
+
+Click **Logout** in the header to clear your token and return to the login screen.
+
+## Configuration
+
+The server accepts the following flags:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--addr` | `127.0.0.1:3000` | Listen address |
+| `--token-file` | `.iracing_token` | OAuth token file path |
+| `--data-dir` | `data` | Directory for cached API docs |
+
+When running via Docker (`make run`), both the token file and docs cache are stored under `data/` and mounted as a volume, so they persist between container restarts.
+
+## Makefile commands
+
+```bash
+make run         # Run locally with go run
+make build       # Build the Docker image
+make run-docker  # Run via Docker (mounts ./data for token + docs cache)
+make test        # Run the Go test suite
+```
 
 ## How It Works
 
@@ -52,7 +71,7 @@ Go to `http://127.0.0.1:3000` and click **Login with iRacing**. After logging in
 1. Click **Login** → browser opens `https://oauth.iracing.com/...`
 2. Log in with your iRacing credentials
 3. Redirected to `http://127.0.0.1:3000/callback`
-4. Token saved to `.iracing_token`; API docs fetched from `https://members-ng.iracing.com/data/doc`
+4. Token saved to the configured token file; API docs fetched from iRacing
 
 The app uses OAuth 2.1 with PKCE — no client secret is required.
 
@@ -66,7 +85,7 @@ The sidebar is built dynamically from the iRacing API documentation. Select any 
 - Handles chunked (paginated) responses with Prev/Next navigation
 - Returns the result to the frontend as JSON or a table
 
-### API Docs caching
+### API Docs Caching
 
 On startup the app attempts to fetch fresh docs from iRacing. If not yet authenticated, it falls back to a local cache (`data/data-docs.json`, gitignored). The cache is written on every successful fetch, so it stays current automatically.
 
@@ -120,61 +139,59 @@ To fetch a specific chunk: update `s3_chunk_index` in Bruno's Environment panel,
 ### Troubleshooting Bruno
 
 **"No S3 link found in environment"**
-> run an API endpoint first; the post-response script populates the variable.
+> Run an API endpoint first; the post-response script populates the variable.
 
 **S3 link expired (404)**
-> links expire in ~2 minutes; re-run the original endpoint to get a fresh one.
+> Links expire in ~2 minutes; re-run the original endpoint to get a fresh one.
 
 **Authentication issues**
->tokens refresh automatically; if stuck, clear Bruno's cache or re-run any request to trigger a fresh OAuth flow.
+> Tokens refresh automatically; if stuck, clear Bruno's cache or re-run any request to trigger a fresh OAuth flow.
 
 ---
 
 ## Running Tests
 
-Install dev dependencies:
-
 ```bash
-pip install -r requirements-dev.txt
+make test
 ```
 
-Run the test suite:
+Or directly:
 
 ```bash
-python -m pytest tests/ -v
+cd web && go test ./...
 ```
 
 ## Project Structure
 
 ```
-app.py              Flask server — OAuth routes, generic API proxy
-oauth_client.py     OAuth 2.1 + PKCE flow, token management
-requirements.txt    Runtime dependencies
-requirements-dev.txt  Dev/test dependencies
-templates/
-  index.html        Two-panel app shell
-static/
-  app.js            Dynamic endpoint explorer (sidebar, forms, response display)
-  style.css         Layout and styling
+web/
+  cmd/apex/
+    main.go           Server entry point — routing, handlers, docs cache
+  internal/
+    oauth/            OAuth 2.1 + PKCE client and token management
+    proxy/            API proxy — S3 resolution, chunked response handling
+    browser/          Cross-platform browser open helper
+  assets/
+    embed.go          Embedded static files and templates
+    static/           app.js, style.css
+    templates/        index.html
+  Dockerfile
 data/
-  data-docs.json    API docs cache (auto-generated, gitignored)
-tests/
-  test_oauth.py     PKCE, auth URL, token file operations
-  test_response.py  API response processing (S3, chunked, direct)
-  test_routes.py    Flask route behaviour and auth guards
-tools/              Go developer tools (see docs/tooling.md)
+  data-docs.json      API docs cache (auto-generated, gitignored)
+  .iracing_token      OAuth token (auto-generated, gitignored)
+tools/                Go developer tools (see docs/tooling.md)
 ```
 
-## Troubleshooting Web
+## Troubleshooting
 
-**`ModuleNotFoundError: No module named 'flask'`**
-> Forgot to install dependencies or activate the venv: `pip install -r requirements.txt`
-
-**`Address already in use`**
+**`Port already in use`**
 > Port 3000 is taken. Kill it: `lsof -ti:3000 | xargs kill -9`
 
 **"Not authenticated" after login**
-> Token may have expired — click Login again. Check that `.iracing_token` exists in the project root.
+> Token may have expired — click Login again. Check that `data/.iracing_token` exists.
 
 **Sidebar is empty after login**
-> The API docs fetch failed. Check the terminal for a `⚠️` message. Restarting the app usually resolves it.
+> The API docs fetch failed. Check the terminal output. Restarting the app usually resolves it.
+
+**Docker: token lost between runs**
+> Make sure you're running with `-v "$PWD/data:/data"` so the data directory is mounted.

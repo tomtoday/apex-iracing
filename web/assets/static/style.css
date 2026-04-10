@@ -340,6 +340,14 @@ body {
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-primary:active { transform: translateY(1px); }
 
+.btn-secondary {
+    background: transparent;
+    color: var(--text-sidebar);
+    border: 1px solid #475569;
+}
+
+.btn-secondary:hover { background: var(--sidebar-hover); color: #f8fafc; }
+
 .btn-small {
     padding: 5px 12px;
     font-size: 13px;

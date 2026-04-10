@@ -1,10 +1,9 @@
 .DS_Store
 __pycache__/
-*.pyc
 .venv/
 .env
-.iracing_token
-/*.json
-/*.csv
 data/
 tmp/
+dist/
+web/apex
+web/cmd/apex/apex

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APEX - iRacing API Explorer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="app">
@@ -17,6 +17,7 @@
             <div class="header-auth">
                 <span id="auth-status" class="auth-status"></span>
                 <button id="login-btn" class="btn btn-primary" style="display:none;">Login with iRacing</button>
+                <button id="logout-btn" class="btn btn-secondary" style="display:none;">Logout</button>
             </div>
         </header>
 
@@ -94,6 +95,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="/static/app.js"></script>
 </body>
 </html>
