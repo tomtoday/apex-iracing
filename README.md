@@ -12,9 +12,9 @@ APEX is available in two interfaces:
 
 ## Download
 
-Pre-built binaries for macOS, Linux, and Windows are available on the [Releases](https://github.com/tomtoday/apex-iracing/releases) page.
+The quickest way to get started and explore the iRacing Data API is to download one of the pre-built binaries for macOS, Linux, and Windows. These are are available on the [Releases](https://github.com/tomtoday/apex-iracing/releases) page.
 
-APEX is a single self-contained executable — no Python, no dependencies, no install step. Download the archive for your platform, extract it, and run the binary. It opens your browser automatically on startup.
+APEX is made available as a single self-contained executable — no dependencies, no install step. Download the archive for your platform, extract it, and run the binary. It opens your browser automatically on startup.
 
 | Platform | File |
 |---|---|
